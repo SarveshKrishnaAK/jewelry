@@ -15,13 +15,31 @@ export const navigationLinks: NavigationLink[] = [
   { href: '/checkout', label: 'Checkout' },
 ];
 
+function normalizeAbsoluteUrl(value: string) {
+  const trimmedValue = value.trim().replace(/\/$/, '');
+
+  if (!trimmedValue) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(trimmedValue)) {
+    return trimmedValue;
+  }
+
+  if (/^(localhost|127\.0\.0\.1)(:\d+)?$/i.test(trimmedValue)) {
+    return `http://${trimmedValue}`;
+  }
+
+  return `https://${trimmedValue}`;
+}
+
 export function getBaseUrl() {
   if (process.env.NEXT_PUBLIC_APP_URL) {
-    return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, '');
+    return normalizeAbsoluteUrl(process.env.NEXT_PUBLIC_APP_URL) ?? 'http://localhost:3000';
   }
 
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+    return normalizeAbsoluteUrl(process.env.VERCEL_URL) ?? 'http://localhost:3000';
   }
 
   return 'http://localhost:3000';
