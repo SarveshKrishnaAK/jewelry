@@ -1,0 +1,30 @@
+﻿<svg width="960" height="1200" viewBox="0 0 960 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="1200" rx="72" fill="url(#bg)"/>
+  <circle cx="480" cy="300" r="170" fill="url(#glow)" fill-opacity="0.85"/>
+  <path d="M294 434C354 516 418 558 480 558C542 558 606 516 666 434" stroke="url(#gold)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M396 564V676" stroke="#D49B49" stroke-width="10" stroke-linecap="round"/>
+  <path d="M564 564V676" stroke="#D49B49" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="480" cy="614" r="66" fill="#FFF5E1"/>
+  <path d="M480 572L496 603H530L502 623L514 656L480 637L446 656L458 623L430 603H464L480 572Z" fill="#D79A47"/>
+  <circle cx="396" cy="714" r="44" fill="#F0C16A"/>
+  <circle cx="564" cy="714" r="44" fill="#F0C16A"/>
+  <circle cx="396" cy="714" r="14" fill="#995442"/>
+  <circle cx="564" cy="714" r="14" fill="#995442"/>
+  <text x="480" y="1036" text-anchor="middle" fill="#FFF6E6" font-family="Georgia, serif" font-size="72" letter-spacing="6">TARA</text>
+  <text x="480" y="1094" text-anchor="middle" fill="#EEDAB7" font-family="Arial, sans-serif" font-size="28" letter-spacing="10">PENDANT SET</text>
+  <defs>
+    <linearGradient id="bg" x1="122" y1="88" x2="827" y2="1114" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18443C"/>
+      <stop offset="1" stop-color="#9D6E42"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(480 300) rotate(90) scale(170)">
+      <stop stop-color="#FFF0D3"/>
+      <stop offset="1" stop-color="#FFF0D3" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="294" y1="434" x2="666" y2="714" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBE5B8"/>
+      <stop offset="0.5" stop-color="#CF9340"/>
+      <stop offset="1" stop-color="#FFF1C9"/>
+    </linearGradient>
+  </defs>
+</svg>

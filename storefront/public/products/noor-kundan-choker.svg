@@ -1,0 +1,28 @@
+﻿<svg width="960" height="1200" viewBox="0 0 960 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="1200" rx="72" fill="url(#bg)"/>
+  <circle cx="480" cy="286" r="185" fill="url(#glow)" fill-opacity="0.8"/>
+  <path d="M264 468C332 522 404 550 480 550C556 550 628 522 696 468" stroke="url(#gold)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M304 510C356 552 416 574 480 574C544 574 604 552 656 510" stroke="#F0C26C" stroke-width="10" stroke-linecap="round"/>
+  <rect x="336" y="546" width="288" height="118" rx="42" fill="#FFF7E7" fill-opacity="0.98"/>
+  <circle cx="392" cy="605" r="19" fill="#A75D4B"/>
+  <circle cx="480" cy="605" r="25" fill="#D9A24C"/>
+  <circle cx="568" cy="605" r="19" fill="#A75D4B"/>
+  <path d="M362 694C398 734 436 758 480 758C524 758 562 734 598 694" stroke="#E5B55E" stroke-width="8" stroke-linecap="round"/>
+  <text x="480" y="1036" text-anchor="middle" fill="#FFF6E6" font-family="Georgia, serif" font-size="72" letter-spacing="6">NOOR</text>
+  <text x="480" y="1094" text-anchor="middle" fill="#EFDAB7" font-family="Arial, sans-serif" font-size="28" letter-spacing="10">KUNDAN CHOKER</text>
+  <defs>
+    <linearGradient id="bg" x1="90" y1="72" x2="871" y2="1127" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#582E2A"/>
+      <stop offset="1" stop-color="#C28A52"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(480 286) rotate(90) scale(185)">
+      <stop stop-color="#FFF0D4"/>
+      <stop offset="1" stop-color="#FFF0D4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="264" y1="468" x2="696" y2="664" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCE5B9"/>
+      <stop offset="0.5" stop-color="#CF9340"/>
+      <stop offset="1" stop-color="#FFF1CA"/>
+    </linearGradient>
+  </defs>
+</svg>

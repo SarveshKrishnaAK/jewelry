@@ -1,0 +1,33 @@
+﻿<svg width="960" height="1200" viewBox="0 0 960 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="1200" rx="72" fill="url(#bg)"/>
+  <circle cx="480" cy="312" r="170" fill="url(#glow)" fill-opacity="0.8"/>
+  <path d="M268 474C336 546 404 580 480 580C556 580 624 546 692 474" stroke="url(#gold)" stroke-width="22" stroke-linecap="round"/>
+  <path d="M322 524C364 570 417 602 480 602C543 602 596 570 638 524" stroke="#E3B464" stroke-width="12" stroke-linecap="round"/>
+  <rect x="394" y="545" width="172" height="102" rx="32" fill="#FFF5E0"/>
+  <circle cx="480" cy="596" r="22" fill="#9C5641"/>
+  <circle cx="330" cy="484" r="30" fill="#F6D79E"/>
+  <circle cx="630" cy="484" r="30" fill="#F6D79E"/>
+  <path d="M330 514V678" stroke="#D49A49" stroke-width="12" stroke-linecap="round"/>
+  <path d="M630 514V678" stroke="#D49A49" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="330" cy="722" r="40" fill="#F0C16A"/>
+  <circle cx="630" cy="722" r="40" fill="#F0C16A"/>
+  <circle cx="330" cy="722" r="14" fill="#9C5641"/>
+  <circle cx="630" cy="722" r="14" fill="#9C5641"/>
+  <text x="480" y="1036" text-anchor="middle" fill="#FFF6E6" font-family="Georgia, serif" font-size="72" letter-spacing="6">MEERA</text>
+  <text x="480" y="1094" text-anchor="middle" fill="#EEDAB7" font-family="Arial, sans-serif" font-size="28" letter-spacing="10">TEMPLE JHUMKAS</text>
+  <defs>
+    <linearGradient id="bg" x1="94" y1="93" x2="858" y2="1119" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#193232"/>
+      <stop offset="1" stop-color="#77512A"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(480 312) rotate(90) scale(170)">
+      <stop stop-color="#FFF0D2"/>
+      <stop offset="1" stop-color="#FFF0D2" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="268" y1="474" x2="692" y2="722" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F9E3B5"/>
+      <stop offset="0.5" stop-color="#CF9340"/>
+      <stop offset="1" stop-color="#FFF0C7"/>
+    </linearGradient>
+  </defs>
+</svg>

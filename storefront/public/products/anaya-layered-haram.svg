@@ -1,0 +1,31 @@
+﻿<svg width="960" height="1200" viewBox="0 0 960 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="1200" rx="72" fill="url(#bg)"/>
+  <circle cx="480" cy="250" r="186" fill="url(#glow)" fill-opacity="0.82"/>
+  <path d="M360 254C360 196 407 149 465 149H495C553 149 600 196 600 254V294H360V254Z" fill="#FFF5E3" fill-opacity="0.42"/>
+  <path d="M330 356C382 470 431 556 480 614C529 556 578 470 630 356" stroke="url(#gold)" stroke-width="18" stroke-linecap="round"/>
+  <path d="M288 416C352 562 416 694 480 790C544 694 608 562 672 416" stroke="#D39B49" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="480" cy="640" r="44" fill="#F7DAA2"/>
+  <circle cx="480" cy="640" r="14" fill="#9A5442"/>
+  <circle cx="438" cy="714" r="26" fill="#F3C66E"/>
+  <circle cx="522" cy="714" r="26" fill="#F3C66E"/>
+  <circle cx="396" cy="786" r="22" fill="#F2C062"/>
+  <circle cx="480" cy="822" r="22" fill="#F2C062"/>
+  <circle cx="564" cy="786" r="22" fill="#F2C062"/>
+  <text x="480" y="1036" text-anchor="middle" fill="#FFF6E6" font-family="Georgia, serif" font-size="72" letter-spacing="6">ANAYA</text>
+  <text x="480" y="1094" text-anchor="middle" fill="#EEDAB7" font-family="Arial, sans-serif" font-size="28" letter-spacing="10">LAYERED HARAM</text>
+  <defs>
+    <linearGradient id="bg" x1="101" y1="72" x2="859" y2="1124" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#402A46"/>
+      <stop offset="1" stop-color="#AB7441"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(480 250) rotate(90) scale(186)">
+      <stop stop-color="#FFF0D3"/>
+      <stop offset="1" stop-color="#FFF0D3" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="330" y1="356" x2="630" y2="790" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBE5B7"/>
+      <stop offset="0.5" stop-color="#CF9340"/>
+      <stop offset="1" stop-color="#FFF1C9"/>
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,0 +1,33 @@
+﻿<svg width="960" height="1200" viewBox="0 0 960 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="960" height="1200" rx="72" fill="url(#bg)"/>
+  <circle cx="480" cy="280" r="180" fill="url(#glow)" fill-opacity="0.75"/>
+  <path d="M245 358C310 494 396 586 480 586C564 586 650 494 715 358" stroke="url(#gold)" stroke-width="28" stroke-linecap="round"/>
+  <path d="M318 443C362 531 417 622 480 622C543 622 598 531 642 443" stroke="#C48A3C" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="480" cy="642" r="40" fill="#F6D79E"/>
+  <circle cx="480" cy="642" r="17" fill="#6C2D1D"/>
+  <circle cx="360" cy="522" r="28" fill="#F6D79E"/>
+  <circle cx="600" cy="522" r="28" fill="#F6D79E"/>
+  <path d="M360 550V652" stroke="#D7A14F" stroke-width="12" stroke-linecap="round"/>
+  <path d="M600 550V652" stroke="#D7A14F" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="360" cy="690" r="24" fill="#F3C56C"/>
+  <circle cx="600" cy="690" r="24" fill="#F3C56C"/>
+  <path d="M420 718C450 775 460 836 480 900C500 836 510 775 540 718" stroke="url(#gold)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M298 264C298 216 337 178 385 178H575C623 178 662 216 662 264V282H298V264Z" fill="#FFF8EE" fill-opacity="0.44"/>
+  <text x="480" y="1036" text-anchor="middle" fill="#FFF6E6" font-family="Georgia, serif" font-size="72" letter-spacing="6">ZARIA</text>
+  <text x="480" y="1094" text-anchor="middle" fill="#F3DEC0" font-family="Arial, sans-serif" font-size="28" letter-spacing="10">BRIDAL SET</text>
+  <defs>
+    <linearGradient id="bg" x1="125" y1="87" x2="840" y2="1116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#3A2518"/>
+      <stop offset="1" stop-color="#9B5D2F"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(480 280) rotate(90) scale(180)">
+      <stop stop-color="#FFF2D7"/>
+      <stop offset="1" stop-color="#FFF2D7" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="245" y1="358" x2="715" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FBE4B0"/>
+      <stop offset="0.4" stop-color="#D59A43"/>
+      <stop offset="1" stop-color="#FFF0C6"/>
+    </linearGradient>
+  </defs>
+</svg>
