@@ -2,8 +2,13 @@
 import { NextResponse } from 'next/server';
 
 function buildContentSecurityPolicy() {
-  const scriptSrc = ["'self'", "'unsafe-inline'", 'https://checkout.razorpay.com'];
-  const connectSrc = ["'self'", 'https://api.razorpay.com', 'https://checkout.razorpay.com'];
+  const scriptSrc = ["'self'", "'unsafe-inline'", 'https://checkout.razorpay.com', 'https://cdn.razorpay.com'];
+  const connectSrc = [
+    "'self'",
+    'https://api.razorpay.com',
+    'https://checkout.razorpay.com',
+    'https://lumberjack.razorpay.com',
+  ];
 
   if (process.env.NODE_ENV !== 'production') {
     scriptSrc.push("'unsafe-eval'");
@@ -15,12 +20,12 @@ function buildContentSecurityPolicy() {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'none'",
-    "img-src 'self' data: blob:",
+    "img-src 'self' data: blob: https://cdn.razorpay.com https://api.razorpay.com",
     "font-src 'self' data:",
     "style-src 'self' 'unsafe-inline'",
     `script-src ${scriptSrc.join(' ')}`,
     `connect-src ${connectSrc.join(' ')}`,
-    "frame-src https://checkout.razorpay.com",
+    'frame-src https://checkout.razorpay.com https://api.razorpay.com',
     "form-action 'self'",
   ];
 
