@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "seed:sample-order": "node tools/seed-sample-order.mjs",
+    "delete:sample-order": "node tools/delete-sample-order.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

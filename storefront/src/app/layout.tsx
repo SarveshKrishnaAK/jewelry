@@ -25,7 +25,7 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl()),
   title: {
-    default: 'Aurum Coverings | Covering Jewelry Storefront',
+    default: 'Aurum Coverings | Occasion Jewelry Boutique',
     template: '%s | Aurum Coverings',
   },
   description: siteConfig.description,

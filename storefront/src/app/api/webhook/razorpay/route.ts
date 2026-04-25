@@ -145,8 +145,6 @@ export async function POST(request: Request) {
     console.info('Razorpay webhook processed.', {
       event: payload.event,
       eventId,
-      orderId,
-      paymentId,
       paymentStatus,
     });
 

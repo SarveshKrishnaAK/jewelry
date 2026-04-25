@@ -45,7 +45,7 @@ export function CartDrawer() {
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">Your bag</p>
             <h2 id="cart-heading" className="mt-2 text-2xl font-semibold text-stone-900">
-              Checkout-ready cart
+              Ready when you are
             </h2>
           </div>
           <button
@@ -61,7 +61,7 @@ export function CartDrawer() {
         {detailedItems.length === 0 ? (
           <div className="mt-10 flex flex-1 flex-col items-center justify-center rounded-[28px] border border-dashed border-stone-300 bg-white/70 p-8 text-center">
             <p className="text-lg font-semibold text-stone-900">Your cart is empty.</p>
-            <p className="mt-2 text-sm text-stone-600">Add a few signature pieces and return here for secure online payment.</p>
+            <p className="mt-2 text-sm text-stone-600">Add a few pieces you love and return here when you are ready to check out.</p>
             <Link
               href="/products"
               onClick={closeCart}
@@ -119,14 +119,14 @@ export function CartDrawer() {
                 <span>Subtotal</span>
                 <span className="text-base font-semibold text-stone-900">{formatCurrency(subtotal)}</span>
               </div>
-              <p className="mt-3 text-xs leading-6 text-stone-500">Taxes and shipping are calculated at payment. Online payment only for all orders.</p>
+              <p className="mt-3 text-xs leading-6 text-stone-500">Taxes and shipping are confirmed during checkout.</p>
               <div className="mt-5 grid gap-3">
                 <Link
                   href="/checkout"
                   onClick={closeCart}
                   className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
                 >
-                  Continue to secure payment
+                  Proceed to checkout
                 </Link>
                 <button
                   type="button"

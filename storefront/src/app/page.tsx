@@ -7,29 +7,29 @@ import { getCustomerHighlights, getFeaturedProducts, getAllProducts } from '@/li
 const collectionCards = [
   {
     title: 'Bridal Spotlight',
-    description: 'Big-day covering sets with layered profiles, ceremonial scale, and lightweight comfort.',
+    description: 'Radiant sets designed to bring grandeur, balance, and ease to wedding-day dressing.',
     href: '/products?category=Bridal%20Sets',
     image: '/products/zaria-bridal-set.svg',
   },
   {
     title: 'Festive Necklines',
-    description: 'Chokers, long harams, and occasion staples that make everyday silk and festive fits look finished.',
+    description: 'Chokers, harams, and standout neckpieces that instantly complete festive wardrobes.',
     href: '/products?category=Necklaces',
     image: '/products/noor-kundan-choker.svg',
   },
   {
     title: 'Quick-Style Earrings',
-    description: 'Statement jhumkas and easy occasion pieces that deliver drama without the weight.',
+    description: 'From graceful jhumkas to statement silhouettes, these styles bring polish without the weight.',
     href: '/products?category=Earrings',
     image: '/products/meera-temple-jhumkas.svg',
   },
 ];
 
 const promisePoints = [
-  'Marketplace-style browsing with a boutique visual identity',
-  'Accessible product cards, cart flow, admin management, and account-gated checkout',
-  'Vercel-friendly structure with Razorpay route handlers and a hidden admin portal',
-  'Luxury-inspired animations that respect reduced-motion preferences',
+  'Curated bridal, festive, and everyday statement pieces.',
+  'Smooth browsing with thoughtful product details and trusted shopper reviews.',
+  'Secure account access, saved delivery details, and protected online payment.',
+  'Refined motion and accessible interactions across desktop and mobile.',
 ];
 
 export default async function Home() {
@@ -44,32 +44,32 @@ export default async function Home() {
       <div className="mx-auto w-[min(1200px,calc(100%-1.5rem))] space-y-20">
         <section className="grid gap-10 rounded-[40px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,236,219,0.94))] p-8 shadow-[0_30px_80px_rgba(74,46,14,0.12)] backdrop-blur lg:grid-cols-[1.1fr_0.9fr] lg:p-12">
           <div className="flex flex-col justify-center">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Covering jewelry storefront</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Aurum signature edit</p>
             <h1 className="mt-5 max-w-2xl [font-family:var(--font-cormorant)] text-5xl font-semibold leading-none text-stone-900 sm:text-6xl lg:text-7xl">
-              Sell statement jewelry with the confidence of a modern B2C experience.
+              Jewelry that brings celebration, confidence, and polish to every look.
             </h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-stone-600 sm:text-lg">
-              This storefront now combines luxury catalog presentation with secure customer accounts, OTP-protected admin access, and a live product management workflow that can update the catalog without hardcoding new items.
+              Discover bridal sets, festive favorites, and everyday statement pieces chosen to feel luminous, comfortable, and beautifully gift-worthy.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/products" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-stone-700">Browse catalog</Link>
-              {allProducts[0] ? <Link href={`/products/${allProducts[0].slug}`} className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-900 transition duration-300 hover:-translate-y-0.5 hover:border-stone-900">View hero product</Link> : null}
+              <Link href="/products" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-stone-700">Explore collections</Link>
+              {allProducts[0] ? <Link href={`/products/${allProducts[0].slug}`} className="inline-flex items-center justify-center rounded-full border border-stone-300 bg-white px-6 py-3 text-sm font-semibold text-stone-900 transition duration-300 hover:-translate-y-0.5 hover:border-stone-900">View featured piece</Link> : null}
             </div>
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               <div className="rounded-[24px] border border-white/70 bg-white/85 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Catalog-ready</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Curated styles</p>
                 <p className="mt-2 text-2xl font-semibold text-stone-900">{allProducts.length}</p>
-                <p className="text-sm text-stone-600">launch products included</p>
+                <p className="text-sm text-stone-600">signature pieces to discover</p>
               </div>
               <div className="rounded-[24px] border border-white/70 bg-white/85 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Checkout</p>
-                <p className="mt-2 text-2xl font-semibold text-stone-900">2-step</p>
-                <p className="text-sm text-stone-600">customer authentication flow</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Secure checkout</p>
+                <p className="mt-2 text-2xl font-semibold text-stone-900">India-ready</p>
+                <p className="text-sm text-stone-600">payments for cards, UPI, and netbanking</p>
               </div>
               <div className="rounded-[24px] border border-white/70 bg-white/85 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Admin</p>
-                <p className="mt-2 text-2xl font-semibold text-stone-900">OTP</p>
-                <p className="text-sm text-stone-600">verified hidden control room</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Trusted account access</p>
+                <p className="mt-2 text-2xl font-semibold text-stone-900">Protected</p>
+                <p className="text-sm text-stone-600">saved details for a smoother return visit</p>
               </div>
             </div>
           </div>
@@ -82,11 +82,11 @@ export default async function Home() {
               </div>
               <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-[26px] border border-stone-200 bg-white/90 p-5">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Best launch performer</p>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-500">Most-loved piece</p>
                   <p className="mt-2 text-2xl font-semibold text-stone-900">{featuredProducts[0]?.name ?? 'Signature catalog piece'}</p>
-                  <p className="mt-1 text-sm text-stone-600">Built for wedding wardrobes and premium occasion styling.</p>
+                  <p className="mt-1 text-sm text-stone-600">Chosen for wedding wardrobes, festive evenings, and memorable gifting.</p>
                 </div>
-                <div className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white">{featuredProducts[0] ? `${featuredProducts[0].rating.toFixed(1)} / 5 rating` : 'Luxury edit'}</div>
+                <div className="rounded-full bg-stone-900 px-4 py-2 text-sm font-semibold text-white">{featuredProducts[0] ? `${featuredProducts[0].rating.toFixed(1)} / 5 rating` : "Editor's choice"}</div>
               </div>
             </div>
           </div>
@@ -95,10 +95,10 @@ export default async function Home() {
         <section className="space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Merchandising lanes</p>
-              <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900 sm:text-5xl">Shop the collections customers look for first.</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Signature collections</p>
+              <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900 sm:text-5xl">Shop the styles customers return to season after season.</h2>
             </div>
-            <Link href="/products" className="text-sm font-semibold text-stone-700 transition hover:text-stone-900">View full catalog</Link>
+            <Link href="/products" className="text-sm font-semibold text-stone-700 transition hover:text-stone-900">View all collections</Link>
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {collectionCards.map((collectionCard) => (
@@ -118,10 +118,10 @@ export default async function Home() {
         <section className="space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Bestsellers</p>
-              <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900 sm:text-5xl">Live catalog powered by admin updates</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Most loved</p>
+              <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900 sm:text-5xl">Pieces shoppers are choosing right now.</h2>
             </div>
-            <p className="max-w-xl text-sm leading-7 text-stone-600">Seeded products are included out of the box, and the hidden admin dashboard can now add or update live catalog entries without editing code.</p>
+            <p className="max-w-xl text-sm leading-7 text-stone-600">Explore standout styles for weddings, festive dressing, and elevated everyday moments.</p>
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {featuredProducts.slice(0, 4).map((product) => (
@@ -132,8 +132,8 @@ export default async function Home() {
 
         <section className="grid gap-6 rounded-[40px] border border-white/70 bg-white/80 p-8 shadow-[0_20px_60px_rgba(87,60,14,0.08)] lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">What this build already covers</p>
-            <h2 className="mt-4 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900">An accessible, animated storefront with real admin controls.</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Why shop with us</p>
+            <h2 className="mt-4 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900">Thoughtful details that make every purchase feel assured.</h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {promisePoints.map((point) => (
@@ -145,7 +145,7 @@ export default async function Home() {
         <section className="space-y-6">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Customer love</p>
-            <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900 sm:text-5xl">Review blocks that still feel like a real B2C launch.</h2>
+            <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900 sm:text-5xl">Loved for weddings, gifting, and festive dressing.</h2>
           </div>
           <div className="grid gap-6 lg:grid-cols-3">
             {customerHighlights.slice(0, 3).map((highlight) => (
@@ -168,13 +168,13 @@ export default async function Home() {
         <section className="overflow-hidden rounded-[40px] border border-white/70 bg-stone-950 px-8 py-10 text-white shadow-[0_24px_70px_rgba(20,12,5,0.22)] lg:px-10">
           <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-200/70">Launch-ready</p>
-              <h2 className="mt-4 [font-family:var(--font-cormorant)] text-4xl font-semibold sm:text-5xl">Deploy on Vercel now, add your custom domain when you&apos;re ready.</h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">The codebase now supports secure customer auth, admin-only catalog management, and the same Vercel-friendly deployment path you asked for on day one.</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-amber-200/70">Ready when you are</p>
+              <h2 className="mt-4 [font-family:var(--font-cormorant)] text-4xl font-semibold sm:text-5xl">Find the piece that finishes the look beautifully.</h2>
+              <p className="mt-4 max-w-2xl text-sm leading-7 text-stone-300">Browse the collection, save your favorites, and check out securely when the moment feels right.</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <Link href="/checkout" className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-200">See checkout</Link>
-              <Link href="/products" className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/10">Explore catalog</Link>
+              <Link href="/checkout" className="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-900 transition hover:bg-stone-200">Continue to checkout</Link>
+              <Link href="/products" className="inline-flex items-center justify-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white transition hover:border-white/50 hover:bg-white/10">Explore collections</Link>
             </div>
           </div>
         </section>

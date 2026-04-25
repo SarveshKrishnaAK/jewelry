@@ -8,6 +8,7 @@ import {
   assertContentLength,
   assertJsonContentType,
   assertRateLimit,
+  assertSameSiteBrowserRequest,
   getClientIp,
   normalizeApiError,
   secureJson,
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
 
   try {
     assertAllowedOrigin(request);
+    assertSameSiteBrowserRequest(request);
     assertJsonContentType(request);
     assertContentLength(request, VERIFY_BODY_LIMIT_BYTES);
     rateLimit = assertRateLimit({
@@ -116,7 +118,7 @@ export async function POST(request: Request) {
     }
 
     const response = secureJson({
-      redirectUrl: `/checkout/success?order_id=${encodeURIComponent(orderRecord.storeOrderId)}&payment_id=${encodeURIComponent(paymentId)}`,
+      redirectUrl: `/checkout/success?order_id=${encodeURIComponent(orderRecord.storeOrderId)}`,
     });
 
     return rateLimit ? withRateLimitHeaders(response, rateLimit) : response;

@@ -19,14 +19,14 @@ export function SiteHeader({ session }: { session: AuthSession | null }) {
     <header className="sticky top-0 z-30 border-b border-white/40 bg-[rgba(249,243,236,0.78)] backdrop-blur-xl">
       <div className="border-b border-white/50 bg-stone-950 text-[0.72rem] font-semibold uppercase tracking-[0.3em] text-stone-100">
         <div className="mx-auto flex w-[min(1200px,calc(100%-1.5rem))] items-center justify-between gap-3 py-3">
-          <span>Secure online payments only</span>
-          <span className="hidden sm:inline">Dispatch within 48 to 72 hours</span>
+          <span>Secure online checkout</span>
+          <span className="hidden sm:inline">Carefully packed and dispatched within 48 to 72 hours</span>
         </div>
       </div>
       <div className="mx-auto flex w-[min(1200px,calc(100%-1.5rem))] items-center justify-between gap-4 py-4">
         <Link href="/" className="shrink-0" onClick={() => setMobileMenuOpen(false)}>
-          <span className="block text-xs font-semibold uppercase tracking-[0.38em] text-stone-500">{siteConfig.name}</span>
-          <span className="mt-1 block [font-family:var(--font-cormorant)] text-3xl font-semibold text-stone-900">Luxury Coverings</span>
+          <span className="block text-xs font-semibold uppercase tracking-[0.38em] text-stone-500">Fine occasion jewelry</span>
+          <span className="mt-1 block [font-family:var(--font-cormorant)] text-3xl font-semibold text-stone-900">{siteConfig.name}</span>
         </Link>
 
         <nav className="hidden items-center gap-2 rounded-full border border-white/70 bg-white/70 p-2 shadow-[0_12px_35px_rgba(87,60,14,0.08)] md:flex">

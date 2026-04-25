@@ -5,6 +5,10 @@ import { useState } from 'react';
 import type { CartEntry } from '@/lib/types';
 
 type CheckoutButtonProps = {
+  customerEmail: string;
+  customerName: string;
+  customerPhone: string;
+  hasSavedAddress: boolean;
   items: CartEntry[];
 };
 
@@ -52,11 +56,6 @@ type RazorpayCheckoutConstructor = new (options: RazorpayCheckoutOptions) => Raz
 type CheckoutSessionResponse = {
   amount?: number;
   currency?: string;
-  customer?: {
-    contact?: string;
-    email?: string;
-    name?: string;
-  };
   description?: string;
   error?: string;
   keyId?: string;
@@ -102,11 +101,22 @@ async function loadRazorpayCheckoutScript() {
   return window.Razorpay;
 }
 
-export function CheckoutButton({ items }: CheckoutButtonProps) {
+export function CheckoutButton({
+  customerEmail,
+  customerName,
+  customerPhone,
+  hasSavedAddress,
+  items,
+}: CheckoutButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleCheckout() {
+    if (!hasSavedAddress) {
+      setError('Add your delivery address in your account before starting payment.');
+      return;
+    }
+
     setError(null);
     setIsSubmitting(true);
 
@@ -134,9 +144,9 @@ export function CheckoutButton({ items }: CheckoutButtonProps) {
         description: data.description,
         order_id: data.orderId,
         prefill: {
-          name: data.customer?.name,
-          email: data.customer?.email,
-          contact: data.customer?.contact,
+          name: customerName,
+          email: customerEmail,
+          contact: customerPhone,
         },
         theme: {
           color: '#1c1917',
@@ -192,11 +202,12 @@ export function CheckoutButton({ items }: CheckoutButtonProps) {
       <button
         type="button"
         onClick={handleCheckout}
-        disabled={isSubmitting || items.length === 0}
+        disabled={isSubmitting || items.length === 0 || !hasSavedAddress}
         className="inline-flex w-full items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-stone-700 disabled:cursor-not-allowed disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
       >
         {isSubmitting ? 'Opening Razorpay...' : 'Pay securely with Razorpay'}
       </button>
+      {!hasSavedAddress ? <p className="text-sm text-amber-700">Save your delivery address before continuing to payment.</p> : null}
       {error ? <p className="text-sm text-rose-700">{error}</p> : null}
     </div>
   );

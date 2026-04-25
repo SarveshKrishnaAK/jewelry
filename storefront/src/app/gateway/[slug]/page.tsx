@@ -386,7 +386,7 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
             <h2 className="mt-3 text-3xl font-semibold text-stone-900">Enter the code sent to {emailHint ?? admin?.email ?? 'the admin email'}.</h2>
             <form action={mode === 'verify-setup' ? completeAdminSetup : completeAdminLogin} className="mt-6 max-w-md space-y-4">
               <input type="hidden" name="portalPath" value={portalPath} />
-              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">One-time password<input name="otp" inputMode="numeric" maxLength={6} className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-lg tracking-[0.32em] outline-none focus:border-stone-900" required /></label>
+              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">One-time password<input name="otp" autoComplete="one-time-code" inputMode="numeric" pattern="[0-9]{6}" maxLength={6} className="rounded-2xl border border-stone-200 bg-white px-4 py-3 text-lg tracking-[0.32em] outline-none focus:border-stone-900" required /></label>
               <button type="submit" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">Verify admin access</button>
             </form>
           </section>
@@ -396,8 +396,8 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
             <h2 className="mt-3 text-3xl font-semibold text-stone-900">Password plus email OTP.</h2>
             <form action={beginAdminLogin} className="mt-6 space-y-4">
               <input type="hidden" name="portalPath" value={portalPath} />
-              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Admin email<input type="email" name="email" defaultValue={admin?.email ?? ''} placeholder="Enter the locked admin email" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
-              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Password<input type="password" name="password" placeholder="Enter the locked admin password" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
+              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Admin email<input type="email" name="email" autoComplete="email" defaultValue={admin?.email ?? ''} placeholder="Enter the locked admin email" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
+              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Password<input type="password" name="password" autoComplete="current-password" placeholder="Enter the locked admin password" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
               <button type="submit" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">Send admin OTP</button>
             </form>
           </section>
@@ -408,8 +408,8 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
             <p className="mt-3 text-sm leading-7 text-stone-600">The first successful setup defines the only admin email and password. After that, the same credentials plus OTP are required every time. Nothing is prefilled or hardcoded into the page.</p>
             <form action={beginAdminSetup} className="mt-6 space-y-4">
               <input type="hidden" name="portalPath" value={portalPath} />
-              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Admin email<input type="email" name="email" placeholder="name@example.com" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
-              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Password<input type="password" name="password" placeholder="Choose a strong password" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
+              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Admin email<input type="email" name="email" autoComplete="email" placeholder="name@example.com" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
+              <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Password<input type="password" name="password" autoComplete="new-password" placeholder="Choose a strong password" className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
               <p className="text-sm leading-7 text-stone-500">Choose the admin email and strong password you want to lock in for the store, then confirm the OTP sent to that email.</p>
               <button type="submit" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">Send setup OTP</button>
             </form>

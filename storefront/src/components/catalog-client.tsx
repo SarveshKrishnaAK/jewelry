@@ -89,7 +89,7 @@ export function CatalogClient({ products, categories }: CatalogClientProps) {
           </label>
         </div>
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-sm text-stone-600">
-          <p>{filteredProducts.length} products match your current filters.</p>
+          <p>{filteredProducts.length} styles match your current filters.</p>
           <div className="flex flex-wrap gap-2">
             {categories.slice(0, 4).map((category) => (
               <button
@@ -113,8 +113,8 @@ export function CatalogClient({ products, categories }: CatalogClientProps) {
         </div>
       ) : (
         <section className="rounded-[36px] border border-dashed border-stone-300 bg-white/75 px-6 py-16 text-center shadow-[0_20px_60px_rgba(87,60,14,0.06)]">
-          <h2 className="text-2xl font-semibold text-stone-900">No products matched this filter set.</h2>
-          <p className="mt-3 text-sm leading-7 text-stone-600">Try clearing the search, switching categories, or browsing the featured collections above.</p>
+          <h2 className="text-2xl font-semibold text-stone-900">No styles matched this selection.</h2>
+          <p className="mt-3 text-sm leading-7 text-stone-600">Try clearing the search, switching categories, or exploring another collection.</p>
         </section>
       )}
     </div>

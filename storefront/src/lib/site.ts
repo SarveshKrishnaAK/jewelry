@@ -3,15 +3,15 @@
 export const siteConfig = {
   name: 'Aurum Coverings',
   description:
-    'A premium covering jewelry storefront for bridal, festive, and everyday statements with secure online checkout.',
+    'A curated jewelry destination for bridal celebrations, festive dressing, and everyday elegance with secure online checkout.',
   supportEmail: 'hello@aurumcoverings.com',
   supportPhone: '+91 98765 43210',
-  tagline: 'Modern covering jewelry with bridal drama and everyday comfort.',
+  tagline: 'Statement jewelry for celebrations, gifting, and everyday grace.',
 };
 
 export const navigationLinks: NavigationLink[] = [
   { href: '/', label: 'Home' },
-  { href: '/products', label: 'Catalog' },
+  { href: '/products', label: 'Collections' },
   { href: '/checkout', label: 'Checkout' },
 ];
 

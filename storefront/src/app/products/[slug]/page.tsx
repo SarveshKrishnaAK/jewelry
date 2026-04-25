@@ -46,7 +46,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     <div className="pb-20 pt-10 lg:pb-28">
       <div className="mx-auto w-[min(1200px,calc(100%-1.5rem))] space-y-10">
         <nav className="text-sm text-stone-500">
-          <Link href="/" className="transition hover:text-stone-900">Home</Link> / <Link href="/products" className="transition hover:text-stone-900">Catalog</Link> / <span className="text-stone-700">{product.name}</span>
+          <Link href="/" className="transition hover:text-stone-900">Home</Link> / <Link href="/products" className="transition hover:text-stone-900">Collections</Link> / <span className="text-stone-700">{product.name}</span>
         </nav>
 
         <section className="grid gap-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-start">
@@ -64,7 +64,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             <div className="flex flex-wrap items-end gap-4">
               <p className="text-3xl font-semibold text-stone-900">{formatCurrency(product.price)}</p>
               {product.originalPrice ? <p className="text-lg text-stone-400 line-through">{formatCurrency(product.originalPrice)}</p> : null}
-              <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">Account login required for checkout</div>
+              <div className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">Secure account checkout</div>
             </div>
 
             <p className="text-base leading-8 text-stone-600">{product.description}</p>
@@ -104,7 +104,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         <section className="space-y-6">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">Reviews</p>
-            <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900">What customers say before they buy.</h2>
+            <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900">What shoppers are saying.</h2>
           </div>
           <ReviewsList reviews={product.reviews} />
         </section>
@@ -113,9 +113,9 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.3em] text-stone-500">You may also like</p>
-              <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900">More products in the same shopping mood.</h2>
+              <h2 className="mt-3 [font-family:var(--font-cormorant)] text-4xl font-semibold text-stone-900">More to fall in love with.</h2>
             </div>
-            <Link href="/products" className="text-sm font-semibold text-stone-700 transition hover:text-stone-900">Back to catalog</Link>
+            <Link href="/products" className="text-sm font-semibold text-stone-700 transition hover:text-stone-900">Back to collections</Link>
           </div>
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {displayedRelatedProducts.map((relatedProduct) => (

@@ -60,7 +60,7 @@ export function ProductActions({ productId }: ProductActionsProps) {
           onClick={handleAddToCart}
           className="inline-flex items-center justify-center rounded-full border border-stone-900 bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:-translate-y-0.5 hover:bg-stone-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
         >
-          Add to cart
+          Add to bag
         </button>
         <button
           type="button"
@@ -70,7 +70,7 @@ export function ProductActions({ productId }: ProductActionsProps) {
           Buy now
         </button>
       </div>
-      <p className="text-sm text-stone-600">Online payment only. Address and payment details are collected securely during checkout.</p>
+      <p className="text-sm text-stone-600">Secure online checkout. Delivery and payment details are collected safely during purchase.</p>
       <span className="sr-only" aria-live="polite">
         {message}
       </span>

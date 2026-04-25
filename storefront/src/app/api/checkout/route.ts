@@ -11,6 +11,7 @@ import {
   assertContentLength,
   assertJsonContentType,
   assertRateLimit,
+  assertSameSiteBrowserRequest,
   getClientIp,
   normalizeApiError,
   secureJson,
@@ -79,6 +80,7 @@ export async function POST(request: Request) {
 
   try {
     assertAllowedOrigin(request);
+    assertSameSiteBrowserRequest(request);
     assertJsonContentType(request);
     assertContentLength(request, CHECKOUT_BODY_LIMIT_BYTES);
     rateLimit = assertRateLimit({
@@ -205,11 +207,6 @@ export async function POST(request: Request) {
       currency: 'INR',
       storeName: siteConfig.name,
       description: `${detailedItems.length} item${detailedItems.length === 1 ? '' : 's'} from ${siteConfig.name}`,
-      customer: {
-        name: user.name,
-        email: user.email,
-        contact: savedAddress?.phone ?? '',
-      },
     });
 
     return rateLimit ? withRateLimitHeaders(response, rateLimit) : response;

@@ -120,6 +120,18 @@ export function assertAllowedOrigin(request: Request) {
   }
 }
 
+export function assertSameSiteBrowserRequest(request: Request) {
+  const fetchSite = request.headers.get('sec-fetch-site');
+
+  if (!fetchSite) {
+    return;
+  }
+
+  if (fetchSite === 'cross-site') {
+    throw new ApiRouteError('Cross-site browser requests are not allowed for this endpoint.', 403);
+  }
+}
+
 export function assertRateLimit({
   bucket,
   identifier,
