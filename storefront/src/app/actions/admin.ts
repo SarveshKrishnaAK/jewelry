@@ -31,20 +31,43 @@ import { createId, createOtpCode, createSlug, normalizeEmail } from '@/lib/utils
 
 const OTP_TTL_MS = 10 * 60 * 1000;
 const AUTH_WINDOW_MS = 15 * 60 * 1000;
+type AdminReturnTab = 'orders' | 'add-product' | 'modify-products';
 
 function buildPortalPath(formData: FormData) {
   const requestedPath = String(formData.get('portalPath') ?? '').trim();
   return requestedPath.startsWith('/gateway/') ? requestedPath : `/gateway/${getAdminPortalSlug()}`;
 }
 
-function withMessage(pathname: string, type: 'error' | 'notice', message: string) {
+function normalizeAdminReturnTab(value: string): AdminReturnTab | null {
+  switch (value) {
+    case 'orders':
+    case 'add-product':
+    case 'modify-products':
+      return value;
+    default:
+      return null;
+  }
+}
+
+function readAdminReturnTab(formData: FormData) {
+  return normalizeAdminReturnTab(String(formData.get('returnTab') ?? '').trim());
+}
+
+function withMessage(pathname: string, type: 'error' | 'notice', message: string, returnTab?: AdminReturnTab | null) {
   const url = new URL(pathname, 'http://localhost:3000');
+  if (returnTab) {
+    url.searchParams.set('tab', returnTab);
+  }
   url.searchParams.set(type, message);
   return `${url.pathname}${url.search}`;
 }
 
-function withPortalParams(pathname: string, params: Record<string, string>) {
+function withPortalParams(pathname: string, params: Record<string, string>, returnTab?: AdminReturnTab | null) {
   const url = new URL(pathname, 'http://localhost:3000');
+
+  if (returnTab) {
+    url.searchParams.set('tab', returnTab);
+  }
 
   for (const [key, value] of Object.entries(params)) {
     url.searchParams.set(key, value);
@@ -206,11 +229,16 @@ function parseProductForm(formData: FormData, existingProduct?: Product | null) 
   } satisfies Product;
 }
 
-function parseProductFormOrRedirect(formData: FormData, portalPath: string, existingProduct?: Product | null) {
+function parseProductFormOrRedirect(
+  formData: FormData,
+  portalPath: string,
+  returnTab?: AdminReturnTab | null,
+  existingProduct?: Product | null,
+) {
   try {
     return parseProductForm(formData, existingProduct);
   } catch (error) {
-    redirect(withMessage(portalPath, 'error', error instanceof Error ? error.message : 'Unable to save the product.'));
+    redirect(withMessage(portalPath, 'error', error instanceof Error ? error.message : 'Unable to save the product.', returnTab));
   }
 }
 
@@ -395,25 +423,27 @@ export async function logoutAdminAction(formData: FormData) {
 
 export async function createProductAction(formData: FormData) {
   const portalPath = buildPortalPath(formData);
+  const returnTab = readAdminReturnTab(formData);
   ensureAuthFoundation(portalPath);
   await ensureAdminSession(portalPath);
 
-  const product = parseProductFormOrRedirect(formData, portalPath);
+  const product = parseProductFormOrRedirect(formData, portalPath, returnTab);
   const existingProduct = await getProductBySlug(product.slug);
 
   if (existingProduct) {
-    redirect(withMessage(portalPath, 'error', 'That product slug already exists. Use a different slug.'));
+    redirect(withMessage(portalPath, 'error', 'That product slug already exists. Use a different slug.', returnTab));
   }
 
   await upsertProduct(product);
   revalidatePath('/');
   revalidatePath('/products');
   revalidatePath(`/products/${product.slug}`);
-  redirect(withMessage(portalPath, 'notice', 'The new product has been created.'));
+  redirect(withMessage(portalPath, 'notice', 'The new product has been created.', returnTab));
 }
 
 export async function updateProductAction(formData: FormData) {
   const portalPath = buildPortalPath(formData);
+  const returnTab = readAdminReturnTab(formData);
   ensureAuthFoundation(portalPath);
   await ensureAdminSession(portalPath);
 
@@ -422,14 +452,14 @@ export async function updateProductAction(formData: FormData) {
   const existingProduct = products.find((product) => product.id === productId);
 
   if (!existingProduct) {
-    redirect(withMessage(portalPath, 'error', 'The selected product could not be found.'));
+    redirect(withMessage(portalPath, 'error', 'The selected product could not be found.', returnTab));
   }
 
-  const nextProduct = parseProductFormOrRedirect(formData, portalPath, existingProduct);
+  const nextProduct = parseProductFormOrRedirect(formData, portalPath, returnTab, existingProduct);
   const productWithSameSlug = await getProductBySlug(nextProduct.slug);
 
   if (productWithSameSlug && productWithSameSlug.id !== nextProduct.id) {
-    redirect(withMessage(portalPath, 'error', 'That slug already belongs to another product.'));
+    redirect(withMessage(portalPath, 'error', 'That slug already belongs to another product.', returnTab));
   }
 
   await upsertProduct(nextProduct, existingProduct.slug);
@@ -437,36 +467,38 @@ export async function updateProductAction(formData: FormData) {
   revalidatePath('/products');
   revalidatePath(`/products/${existingProduct.slug}`);
   revalidatePath(`/products/${nextProduct.slug}`);
-  redirect(withMessage(portalPath, 'notice', `Updated ${nextProduct.name}.`));
+  redirect(withMessage(portalPath, 'notice', `Updated ${nextProduct.name}.`, returnTab));
 }
 
 export async function deleteProductAction(formData: FormData) {
   const portalPath = buildPortalPath(formData);
+  const returnTab = readAdminReturnTab(formData);
   ensureAuthFoundation(portalPath);
   await ensureAdminSession(portalPath);
 
   const productId = String(formData.get('productId') ?? '').trim();
 
   if (!productId) {
-    redirect(withMessage(portalPath, 'error', 'Choose a valid product to remove.'));
+    redirect(withMessage(portalPath, 'error', 'Choose a valid product to remove.', returnTab));
   }
 
   const products = await getAllProducts();
   const existingProduct = products.find((product) => product.id === productId);
 
   if (!existingProduct) {
-    redirect(withMessage(portalPath, 'error', 'The selected product could not be found.'));
+    redirect(withMessage(portalPath, 'error', 'The selected product could not be found.', returnTab));
   }
 
   await deleteProduct(existingProduct);
   revalidatePath('/');
   revalidatePath('/products');
   revalidatePath(`/products/${existingProduct.slug}`);
-  redirect(withMessage(portalPath, 'notice', `Removed ${existingProduct.name} from the catalog.`));
+  redirect(withMessage(portalPath, 'notice', `Removed ${existingProduct.name} from the catalog.`, returnTab));
 }
 
 export async function updateOrderAction(formData: FormData) {
   const portalPath = buildPortalPath(formData);
+  const returnTab = readAdminReturnTab(formData);
   ensureAuthFoundation(portalPath);
   await ensureAdminSession(portalPath);
 
@@ -476,13 +508,13 @@ export async function updateOrderAction(formData: FormData) {
   const adminNote = String(formData.get('adminNote') ?? '').trim();
 
   if (!orderId || !fulfillmentStatus) {
-    redirect(withMessage(portalPath, 'error', 'Choose a valid order and fulfillment status.'));
+    redirect(withMessage(portalPath, 'error', 'Choose a valid order and fulfillment status.', returnTab));
   }
 
   const order = await getOrderById(orderId);
 
   if (!order) {
-    redirect(withMessage(portalPath, 'error', 'The selected order could not be found.'));
+    redirect(withMessage(portalPath, 'error', 'The selected order could not be found.', returnTab));
   }
 
   const updatedAt = new Date().toISOString();
@@ -501,11 +533,12 @@ export async function updateOrderAction(formData: FormData) {
   });
 
   revalidatePath(portalPath);
-  redirect(withMessage(portalPath, 'notice', `Updated order ${order.id}.`));
+  redirect(withMessage(portalPath, 'notice', `Updated order ${order.id}.`, returnTab));
 }
 
 export async function sendOrderNotificationAction(formData: FormData) {
   const portalPath = buildPortalPath(formData);
+  const returnTab = readAdminReturnTab(formData);
   ensureOtpReadiness(portalPath);
   const session = await ensureAdminSession(portalPath);
 
@@ -515,13 +548,13 @@ export async function sendOrderNotificationAction(formData: FormData) {
   const type = normalizeNotificationType(String(formData.get('type') ?? '').trim());
 
   if (!orderId || !subject || !message) {
-    redirect(withMessage(portalPath, 'error', 'Complete the customer notification subject and message.'));
+    redirect(withMessage(portalPath, 'error', 'Complete the customer notification subject and message.', returnTab));
   }
 
   const order = await getOrderById(orderId);
 
   if (!order) {
-    redirect(withMessage(portalPath, 'error', 'The selected order could not be found.'));
+    redirect(withMessage(portalPath, 'error', 'The selected order could not be found.', returnTab));
   }
 
   await sendOrderNotificationEmail({
@@ -544,5 +577,5 @@ export async function sendOrderNotificationAction(formData: FormData) {
   });
 
   revalidatePath(portalPath);
-  redirect(withMessage(portalPath, 'notice', `Sent an order notification to ${order.email}.`));
+  redirect(withMessage(portalPath, 'notice', `Sent an order notification to ${order.email}.`, returnTab));
 }
