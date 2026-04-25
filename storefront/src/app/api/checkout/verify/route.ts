@@ -1,4 +1,5 @@
 import { getSessionFromCookieHeader } from '@/lib/auth';
+import { deriveOrderStatus, getOrderById, updateOrderRecord } from '@/lib/order-store';
 import { getRazorpayOrderRecord, updateRazorpayOrderRecord } from '@/lib/payment-store';
 import { fetchRazorpayPayment, verifyRazorpayPaymentSignature } from '@/lib/razorpay';
 import {
@@ -96,8 +97,26 @@ export async function POST(request: Request) {
       updatedAt: new Date().toISOString(),
     });
 
+    const storedOrder = await getOrderById(orderRecord.storeOrderId);
+
+    if (storedOrder) {
+      const updatedAt = new Date().toISOString();
+      await updateOrderRecord({
+        ...storedOrder,
+        paymentStatus: payment.status,
+        status: deriveOrderStatus({
+          paymentStatus: payment.status,
+          fulfillmentStatus: storedOrder.fulfillmentStatus,
+          failureReason: storedOrder.failureReason,
+        }),
+        paymentId,
+        updatedAt,
+        paidAt: payment.status === 'captured' || payment.status === 'authorized' ? updatedAt : storedOrder.paidAt,
+      });
+    }
+
     const response = secureJson({
-      redirectUrl: `/checkout/success?order_id=${encodeURIComponent(orderRecord.orderId)}&payment_id=${encodeURIComponent(paymentId)}`,
+      redirectUrl: `/checkout/success?order_id=${encodeURIComponent(orderRecord.storeOrderId)}&payment_id=${encodeURIComponent(paymentId)}`,
     });
 
     return rateLimit ? withRateLimitHeaders(response, rateLimit) : response;

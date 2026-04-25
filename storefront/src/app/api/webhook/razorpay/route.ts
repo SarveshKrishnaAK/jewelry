@@ -1,3 +1,4 @@
+import { deriveOrderStatus, getOrderById, getOrderByRazorpayOrderId, updateOrderRecord } from '@/lib/order-store';
 import { getRazorpayOrderRecord, isWebhookEventProcessed, markWebhookEventProcessed, updateRazorpayOrderRecord } from '@/lib/payment-store';
 import { isRazorpayWebhookConfigured, verifyRazorpayWebhookSignature } from '@/lib/razorpay';
 import {
@@ -78,6 +79,8 @@ export async function POST(request: Request) {
 
     if (orderId) {
       const orderRecord = await getRazorpayOrderRecord(orderId);
+      const storedOrder =
+        (orderRecord ? await getOrderById(orderRecord.storeOrderId) : null) ?? (await getOrderByRazorpayOrderId(orderId));
 
       if (orderRecord) {
         const nextStatus =
@@ -98,6 +101,39 @@ export async function POST(request: Request) {
               ? payload.payload?.payment?.entity?.error_description ?? 'Payment failed at Razorpay.'
               : orderRecord.failureReason,
           updatedAt: new Date().toISOString(),
+        });
+      }
+
+      if (storedOrder) {
+        const nextPaymentStatus =
+          payload.event === 'order.paid' || payload.event === 'payment.captured'
+            ? 'captured'
+            : payload.event === 'payment.authorized'
+              ? 'authorized'
+              : payload.event === 'payment.failed'
+                ? 'failed'
+                : storedOrder.paymentStatus;
+        const failureReason =
+          payload.event === 'payment.failed'
+            ? payload.payload?.payment?.entity?.error_description ?? 'Payment failed at Razorpay.'
+            : storedOrder.failureReason;
+        const updatedAt = new Date().toISOString();
+
+        await updateOrderRecord({
+          ...storedOrder,
+          paymentStatus: nextPaymentStatus,
+          status: deriveOrderStatus({
+            paymentStatus: nextPaymentStatus,
+            fulfillmentStatus: storedOrder.fulfillmentStatus,
+            failureReason,
+          }),
+          paymentId: paymentId ?? storedOrder.paymentId,
+          failureReason,
+          updatedAt,
+          paidAt:
+            nextPaymentStatus === 'captured' || nextPaymentStatus === 'authorized'
+              ? storedOrder.paidAt ?? updatedAt
+              : storedOrder.paidAt,
         });
       }
     }

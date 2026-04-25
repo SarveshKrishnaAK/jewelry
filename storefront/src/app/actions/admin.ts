@@ -21,11 +21,12 @@ import {
   saveAdminRecord,
   saveOtpChallenge,
 } from '@/lib/auth-store';
-import { isEmailConfigured, sendOtpEmail } from '@/lib/mailer';
+import { isEmailConfigured, sendOrderNotificationEmail, sendOtpEmail } from '@/lib/mailer';
+import { deriveOrderStatus, getOrderById, saveOrderNotification, updateOrderRecord } from '@/lib/order-store';
 import { getPasswordValidationError, hashPassword, verifyPassword } from '@/lib/password';
 import { getAllProducts, getProductBySlug, upsertProduct } from '@/lib/product-store';
 import { assertRateLimit } from '@/lib/security';
-import type { Product } from '@/lib/types';
+import type { OrderFulfillmentStatus, OrderNotificationType, Product } from '@/lib/types';
 import { createId, createOtpCode, createSlug, normalizeEmail } from '@/lib/utils';
 
 const OTP_TTL_MS = 10 * 60 * 1000;
@@ -94,6 +95,29 @@ function ensureRateLimit(pathname: string, bucket: string, identifier: string, m
 
 function isSafeProductImagePath(image: string) {
   return image.startsWith('/') && !image.startsWith('//') && !image.includes('..');
+}
+
+function normalizeFulfillmentStatus(value: string): OrderFulfillmentStatus | null {
+  switch (value) {
+    case 'pending':
+    case 'processing':
+    case 'shipped':
+    case 'delivered':
+    case 'cancelled':
+      return value;
+    default:
+      return null;
+  }
+}
+
+function normalizeNotificationType(value: string): OrderNotificationType {
+  switch (value) {
+    case 'order_update':
+    case 'shipping_update':
+      return value;
+    default:
+      return 'custom';
+  }
 }
 
 function parseProductForm(formData: FormData, existingProduct?: Product | null) {
@@ -414,4 +438,86 @@ export async function updateProductAction(formData: FormData) {
   revalidatePath(`/products/${existingProduct.slug}`);
   revalidatePath(`/products/${nextProduct.slug}`);
   redirect(withMessage(portalPath, 'notice', `Updated ${nextProduct.name}.`));
+}
+
+export async function updateOrderAction(formData: FormData) {
+  const portalPath = buildPortalPath(formData);
+  ensureAuthFoundation(portalPath);
+  await ensureAdminSession(portalPath);
+
+  const orderId = String(formData.get('orderId') ?? '').trim();
+  const fulfillmentStatus = normalizeFulfillmentStatus(String(formData.get('fulfillmentStatus') ?? '').trim());
+  const trackingNumber = String(formData.get('trackingNumber') ?? '').trim();
+  const adminNote = String(formData.get('adminNote') ?? '').trim();
+
+  if (!orderId || !fulfillmentStatus) {
+    redirect(withMessage(portalPath, 'error', 'Choose a valid order and fulfillment status.'));
+  }
+
+  const order = await getOrderById(orderId);
+
+  if (!order) {
+    redirect(withMessage(portalPath, 'error', 'The selected order could not be found.'));
+  }
+
+  const updatedAt = new Date().toISOString();
+  await updateOrderRecord({
+    ...order,
+    fulfillmentStatus,
+    status: deriveOrderStatus({
+      paymentStatus: order.paymentStatus,
+      fulfillmentStatus,
+      failureReason: order.failureReason,
+    }),
+    trackingNumber: trackingNumber || undefined,
+    adminNote: adminNote || undefined,
+    updatedAt,
+    cancelledAt: fulfillmentStatus === 'cancelled' ? order.cancelledAt ?? updatedAt : undefined,
+  });
+
+  revalidatePath(portalPath);
+  redirect(withMessage(portalPath, 'notice', `Updated order ${order.id}.`));
+}
+
+export async function sendOrderNotificationAction(formData: FormData) {
+  const portalPath = buildPortalPath(formData);
+  ensureOtpReadiness(portalPath);
+  const session = await ensureAdminSession(portalPath);
+
+  const orderId = String(formData.get('orderId') ?? '').trim();
+  const subject = String(formData.get('subject') ?? '').trim();
+  const message = String(formData.get('message') ?? '').trim();
+  const type = normalizeNotificationType(String(formData.get('type') ?? '').trim());
+
+  if (!orderId || !subject || !message) {
+    redirect(withMessage(portalPath, 'error', 'Complete the customer notification subject and message.'));
+  }
+
+  const order = await getOrderById(orderId);
+
+  if (!order) {
+    redirect(withMessage(portalPath, 'error', 'The selected order could not be found.'));
+  }
+
+  await sendOrderNotificationEmail({
+    to: order.email,
+    customerName: order.customerName,
+    subject,
+    message,
+    orderReference: order.id,
+  });
+
+  await saveOrderNotification({
+    id: createId('notify'),
+    orderId: order.id,
+    type,
+    to: order.email,
+    subject,
+    message,
+    sentBy: session.email,
+    createdAt: new Date().toISOString(),
+  });
+
+  revalidatePath(portalPath);
+  redirect(withMessage(portalPath, 'notice', `Sent an order notification to ${order.email}.`));
 }

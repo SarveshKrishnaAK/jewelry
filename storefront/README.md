@@ -14,6 +14,7 @@ A Vercel-ready covering jewelry ecommerce storefront built with Next.js (React +
 - Hidden admin portal with first-time setup, hashed password storage, email OTP verification, and product management
 - Customer sign-up and sign-in with password plus email OTP before checkout
 - Encrypted saved-address storage for signed-in customers
+- Durable Neon Postgres order storage with admin fulfillment controls and customer notification logs
 - Shared API hardening with origin checks, content-type and body-size validation, and rate limiting
 - App-wide security headers through Next.js proxy and `X-Powered-By` removal
 - Responsive layout, keyboard-friendly controls, reduced-motion support, and strong color contrast
@@ -64,6 +65,7 @@ npm run dev
 - `ADMIN_PORTAL_SLUG`
 - `UPSTASH_REDIS_REST_URL`
 - `UPSTASH_REDIS_REST_TOKEN`
+- `DATABASE_URL`
 - `RESEND_API_KEY`
 - `RESEND_FROM_EMAIL`
 - `RAZORPAY_KEY_ID`
@@ -128,6 +130,26 @@ Webhook security notes:
 - The webhook route verifies the raw request body against `X-Razorpay-Signature`.
 - Duplicate delivery handling uses `x-razorpay-event-id`.
 
+## Orders database
+
+Orders are stored in Neon Postgres using `DATABASE_URL`.
+
+What is persisted:
+
+- store order id plus Razorpay order/payment references
+- customer email, phone, and encrypted delivery address
+- item snapshot, total amount, payment status, and fulfillment status
+- admin tracking numbers and internal notes
+- customer notification history sent from the admin portal
+
+Recommended setup on Vercel:
+
+1. Add Neon Postgres from the Vercel Marketplace.
+2. Confirm `DATABASE_URL` is available in the `storefront` project.
+3. Redeploy.
+
+The schema is created automatically on first use, so there is no separate migration command in this starter.
+
 ## Security notes
 
 - Checkout requests are restricted to allowed origins and JSON payloads.
@@ -139,6 +161,7 @@ Webhook security notes:
 - Passwords are hashed with `scrypt`.
 - Session cookies are signed and `httpOnly`.
 - Saved addresses are encrypted before storage.
+- Order delivery addresses are encrypted before being written to Postgres.
 - API responses are returned with `no-store` cache headers.
 - The app sends CSP, frame protection, referrer, HSTS, and MIME-sniffing headers from the app proxy.
 - The starter rate limiter is process-local; move it to Redis or another shared store if you expect higher traffic or multiple regions.

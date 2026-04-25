@@ -1,6 +1,7 @@
 import { getSessionFromCookieHeader } from '@/lib/auth';
 import { getUserById } from '@/lib/auth-store';
 import { decryptJson } from '@/lib/crypto';
+import { createOrderRecord, deriveOrderStatus, isOrderStoreConfigured } from '@/lib/order-store';
 import { saveRazorpayOrderRecord } from '@/lib/payment-store';
 import { getProductMap } from '@/lib/product-store';
 import { createRazorpayOrder, getRazorpayKeyId, isRazorpayConfigured } from '@/lib/razorpay';
@@ -97,6 +98,10 @@ export async function POST(request: Request) {
       throw new ApiRouteError('Configure Razorpay before starting checkout.', 503);
     }
 
+    if (!isOrderStoreConfigured()) {
+      throw new ApiRouteError('Configure DATABASE_URL before starting checkout.', 503);
+    }
+
     const body = (await request.json()) as { items?: unknown };
     const items = normalizeCartItems(body.items);
 
@@ -112,7 +117,7 @@ export async function POST(request: Request) {
 
     const savedAddress = decryptJson<UserAddress>(user.addressCiphertext);
 
-    if (!savedAddress || !isIndianAddressCountry(savedAddress.country)) {
+    if (!savedAddress || !user.addressCiphertext || !isIndianAddressCountry(savedAddress.country)) {
       throw new ApiRouteError('Save your Indian delivery address in your account before checkout.', 400);
     }
 
@@ -151,11 +156,39 @@ export async function POST(request: Request) {
     });
 
     const now = new Date().toISOString();
+    const storeOrderId = createId('order');
+
+    await createOrderRecord({
+      id: storeOrderId,
+      razorpayOrderId: razorpayOrder.id,
+      receipt: razorpayOrder.receipt,
+      userId: session.subject,
+      email: session.email,
+      customerName: savedAddress.fullName || user.name,
+      customerPhone: savedAddress.phone ?? '',
+      shippingAddressCiphertext: user.addressCiphertext,
+      amount: razorpayOrder.amount,
+      currency: 'INR',
+      status: deriveOrderStatus({
+        paymentStatus: 'created',
+        fulfillmentStatus: 'pending',
+      }),
+      paymentStatus: 'created',
+      fulfillmentStatus: 'pending',
+      items: detailedItems,
+      createdAt: now,
+      updatedAt: now,
+    });
+
     await saveRazorpayOrderRecord({
+      storeOrderId,
       orderId: razorpayOrder.id,
       receipt: razorpayOrder.receipt,
       userId: session.subject,
       email: session.email,
+      customerName: savedAddress.fullName || user.name,
+      customerPhone: savedAddress.phone ?? '',
+      shippingAddressCiphertext: user.addressCiphertext,
       amount: razorpayOrder.amount,
       currency: 'INR',
       status: 'created',

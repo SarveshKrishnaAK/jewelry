@@ -51,11 +51,21 @@ export type PaymentCartItem = {
 
 export type RazorpayPaymentStatus = 'created' | 'authorized' | 'captured' | 'failed';
 
+export type OrderStatus = 'pending_payment' | 'paid' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'payment_failed';
+
+export type OrderFulfillmentStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+
+export type OrderNotificationType = 'order_update' | 'shipping_update' | 'custom';
+
 export type RazorpayOrderRecord = {
+  storeOrderId: string;
   orderId: string;
   receipt: string;
   userId: string;
   email: string;
+  customerName: string;
+  customerPhone: string;
+  shippingAddressCiphertext: string;
   amount: number;
   currency: 'INR';
   status: RazorpayPaymentStatus;
@@ -108,6 +118,42 @@ export type AdminRecord = {
   passwordHash: string;
   createdAt: string;
   updatedAt: string;
+};
+
+export type OrderRecord = {
+  id: string;
+  razorpayOrderId: string;
+  receipt: string;
+  userId: string;
+  email: string;
+  customerName: string;
+  customerPhone: string;
+  shippingAddressCiphertext: string;
+  amount: number;
+  currency: 'INR';
+  status: OrderStatus;
+  paymentStatus: RazorpayPaymentStatus;
+  fulfillmentStatus: OrderFulfillmentStatus;
+  items: PaymentCartItem[];
+  paymentId?: string;
+  failureReason?: string;
+  adminNote?: string;
+  trackingNumber?: string;
+  createdAt: string;
+  updatedAt: string;
+  paidAt?: string;
+  cancelledAt?: string;
+};
+
+export type OrderNotificationRecord = {
+  id: string;
+  orderId: string;
+  type: OrderNotificationType;
+  to: string;
+  subject: string;
+  message: string;
+  sentBy: string;
+  createdAt: string;
 };
 
 export type OtpChallengeScope = 'admin-setup' | 'admin-login' | 'user-signup' | 'user-login';
