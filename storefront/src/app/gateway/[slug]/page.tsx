@@ -7,6 +7,7 @@ import {
   completeAdminLogin,
   completeAdminSetup,
   createProductAction,
+  deleteProductAction,
   logoutAdminAction,
   sendOrderNotificationAction,
   updateOrderAction,
@@ -337,7 +338,16 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
                       <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">{product.category}</p>
                       <h3 className="mt-2 text-2xl font-semibold text-stone-900">{product.name}</h3>
                     </div>
-                    <button type="submit" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">Save changes</button>
+                    <div className="flex flex-wrap gap-3">
+                      <button type="submit" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">Save changes</button>
+                      <button
+                        type="submit"
+                        formAction={deleteProductAction}
+                        className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-5 py-3 text-sm font-semibold text-rose-700 transition hover:border-rose-400 hover:bg-rose-50"
+                      >
+                        Remove product
+                      </button>
+                    </div>
                   </div>
                   <div className="grid gap-4 lg:grid-cols-2">
                     <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Name<input name="name" defaultValue={product.name} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
@@ -360,6 +370,7 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
                     <label className="flex flex-col gap-2 text-sm font-medium text-stone-700">Dispatch<input name="dispatch" defaultValue={product.dispatch} className="rounded-2xl border border-stone-200 px-4 py-3 outline-none focus:border-stone-900" required /></label>
                     <label className="flex items-center gap-3 text-sm font-medium text-stone-700"><input type="checkbox" name="featured" defaultChecked={Boolean(product.featured)} className="h-4 w-4 rounded border-stone-300" /> Feature on storefront</label>
                   </div>
+                  <p className="mt-4 text-sm text-stone-500">Removing a product deletes it from the live catalog in Redis. Existing orders keep their own stored item snapshot.</p>
                 </form>
               ))}
             </div>

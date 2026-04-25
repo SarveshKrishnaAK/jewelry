@@ -24,7 +24,7 @@ import {
 import { isEmailConfigured, sendOrderNotificationEmail, sendOtpEmail } from '@/lib/mailer';
 import { deriveOrderStatus, getOrderById, saveOrderNotification, updateOrderRecord } from '@/lib/order-store';
 import { getPasswordValidationError, hashPassword, verifyPassword } from '@/lib/password';
-import { getAllProducts, getProductBySlug, upsertProduct } from '@/lib/product-store';
+import { deleteProduct, getAllProducts, getProductBySlug, upsertProduct } from '@/lib/product-store';
 import { assertRateLimit } from '@/lib/security';
 import type { OrderFulfillmentStatus, OrderNotificationType, Product } from '@/lib/types';
 import { createId, createOtpCode, createSlug, normalizeEmail } from '@/lib/utils';
@@ -438,6 +438,31 @@ export async function updateProductAction(formData: FormData) {
   revalidatePath(`/products/${existingProduct.slug}`);
   revalidatePath(`/products/${nextProduct.slug}`);
   redirect(withMessage(portalPath, 'notice', `Updated ${nextProduct.name}.`));
+}
+
+export async function deleteProductAction(formData: FormData) {
+  const portalPath = buildPortalPath(formData);
+  ensureAuthFoundation(portalPath);
+  await ensureAdminSession(portalPath);
+
+  const productId = String(formData.get('productId') ?? '').trim();
+
+  if (!productId) {
+    redirect(withMessage(portalPath, 'error', 'Choose a valid product to remove.'));
+  }
+
+  const products = await getAllProducts();
+  const existingProduct = products.find((product) => product.id === productId);
+
+  if (!existingProduct) {
+    redirect(withMessage(portalPath, 'error', 'The selected product could not be found.'));
+  }
+
+  await deleteProduct(existingProduct);
+  revalidatePath('/');
+  revalidatePath('/products');
+  revalidatePath(`/products/${existingProduct.slug}`);
+  redirect(withMessage(portalPath, 'notice', `Removed ${existingProduct.name} from the catalog.`));
 }
 
 export async function updateOrderAction(formData: FormData) {

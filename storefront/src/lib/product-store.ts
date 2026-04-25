@@ -120,3 +120,16 @@ export async function upsertProduct(product: Product, previousSlug?: string) {
   await redis.set(productSlugKey(product.slug), product.id);
   await redis.sadd(PRODUCT_IDS_KEY, product.id);
 }
+
+export async function deleteProduct(product: Pick<Product, 'id' | 'slug'>) {
+  if (!isRedisConfigured()) {
+    throw new Error('Configure Upstash Redis before using product management.');
+  }
+
+  await ensureSeedProducts();
+  const redis = getRedis();
+
+  await redis.del(productKey(product.id));
+  await redis.del(productSlugKey(product.slug));
+  await redis.srem(PRODUCT_IDS_KEY, product.id);
+}
