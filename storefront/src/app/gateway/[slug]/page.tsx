@@ -13,6 +13,7 @@ import {
   updateOrderAction,
   updateProductAction,
 } from '@/app/actions/admin';
+import { AdminDeleteProductButton } from '@/components/admin-delete-product-button';
 import { getCurrentSession } from '@/lib/auth';
 import { adminExists, getAdminRecord } from '@/lib/auth-store';
 import { getAdminPortalSlug } from '@/lib/admin';
@@ -340,13 +341,13 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
                     </div>
                     <div className="flex flex-wrap gap-3">
                       <button type="submit" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">Save changes</button>
-                      <button
-                        type="submit"
-                        formAction={deleteProductAction}
+                      <AdminDeleteProductButton
+                        action={deleteProductAction}
+                        confirmMessage={`Remove ${product.name} from the catalog?`}
                         className="inline-flex items-center justify-center rounded-full border border-rose-200 bg-white px-5 py-3 text-sm font-semibold text-rose-700 transition hover:border-rose-400 hover:bg-rose-50"
                       >
                         Remove product
-                      </button>
+                      </AdminDeleteProductButton>
                     </div>
                   </div>
                   <div className="grid gap-4 lg:grid-cols-2">
