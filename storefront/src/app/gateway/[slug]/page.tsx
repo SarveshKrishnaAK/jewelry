@@ -9,6 +9,7 @@ import {
 } from '@/app/actions/admin';
 import { AdminDashboard } from '@/components/admin-dashboard';
 import { AdminFlashUrlCleaner } from '@/components/admin-flash-url-cleaner';
+import { AdminLeaveGuard } from '@/components/admin-leave-guard';
 import { AdminSessionTimeout } from '@/components/admin-session-timeout';
 import { getCurrentSession } from '@/lib/auth';
 import { adminExists, getAdminRecord } from '@/lib/auth-store';
@@ -89,6 +90,7 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
     return (
       <>
         <AdminFlashUrlCleaner email={emailHint ?? undefined} mode={rawMode ?? undefined} shouldClean={shouldCleanFlash} tab={preservedTab} />
+        <AdminLeaveGuard />
         <AdminSessionTimeout portalPath={portalPath} />
         <AdminDashboard
           key={`${initialTab}:${notice ?? ''}:${error ?? ''}`}

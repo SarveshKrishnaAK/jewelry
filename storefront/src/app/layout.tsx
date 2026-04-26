@@ -1,10 +1,8 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { Cormorant_Garamond, Manrope } from 'next/font/google';
 
-import { CartDrawer } from '@/components/cart-drawer';
 import { CartProvider } from '@/components/cart-provider';
-import { SiteFooter } from '@/components/site-footer';
-import { SiteHeader } from '@/components/site-header';
+import { SiteFrame } from '@/components/site-frame';
 import { getCurrentSession } from '@/lib/auth';
 import { getBaseUrl, siteConfig } from '@/lib/site';
 import { getAllProducts } from '@/lib/product-store';
@@ -56,12 +54,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <CartProvider initialProducts={products}>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
             <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.84),_transparent_36%),radial-gradient(circle_at_85%_20%,_rgba(217,188,140,0.22),_transparent_20%),linear-gradient(180deg,_#f8f2ea_0%,_#efe2d2_52%,_#f9f4ee_100%)]" />
-            <SiteHeader session={session} />
-            <main id="main-content" className="flex-1">
-              {children}
-            </main>
-            <SiteFooter />
-            <CartDrawer />
+            <SiteFrame session={session}>{children}</SiteFrame>
           </div>
         </CartProvider>
       </body>
