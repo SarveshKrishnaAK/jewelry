@@ -30,10 +30,10 @@ export function SiteFrame({
   const pathname = usePathname();
   const router = useRouter();
   const isAdminSession = session?.role === 'admin';
-  const isAdminDashboard = isAdminSession && pathname.startsWith('/gateway/');
+  const isAdminRoute = pathname.startsWith('/gateway/');
 
   useEffect(() => {
-    if (!isAdminSession || isAdminDashboard) {
+    if (!isAdminSession || isAdminRoute) {
       return;
     }
 
@@ -50,9 +50,9 @@ export function SiteFrame({
     return () => {
       cancelled = true;
     };
-  }, [isAdminDashboard, isAdminSession, router]);
+  }, [isAdminRoute, isAdminSession, router]);
 
-  if (isAdminSession && !isAdminDashboard) {
+  if (isAdminSession && !isAdminRoute) {
     return (
       <main id="main-content" className="flex flex-1 items-center justify-center px-6 py-20">
         <section className="w-full max-w-xl rounded-[32px] border border-white/70 bg-white/85 p-8 text-center shadow-[0_20px_60px_rgba(87,60,14,0.08)]">
@@ -68,12 +68,12 @@ export function SiteFrame({
 
   return (
     <>
-      {isAdminDashboard ? null : <SiteHeader session={session} />}
+      {isAdminRoute ? null : <SiteHeader session={session} />}
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      {isAdminDashboard ? null : <SiteFooter />}
-      {isAdminDashboard ? null : <CartDrawer />}
+      {isAdminRoute ? null : <SiteFooter />}
+      {isAdminRoute ? null : <CartDrawer />}
     </>
   );
 }
