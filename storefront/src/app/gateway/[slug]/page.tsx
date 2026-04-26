@@ -9,6 +9,7 @@ import {
 } from '@/app/actions/admin';
 import { AdminDashboard } from '@/components/admin-dashboard';
 import { AdminFlashUrlCleaner } from '@/components/admin-flash-url-cleaner';
+import { AdminSessionTimeout } from '@/components/admin-session-timeout';
 import { getCurrentSession } from '@/lib/auth';
 import { adminExists, getAdminRecord } from '@/lib/auth-store';
 import { getAdminPortalSlug } from '@/lib/admin';
@@ -59,11 +60,17 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
   }
 
   const portalPath = `/gateway/${portalSlug}`;
-  const mode = readQueryParam(query.mode) ?? '';
+  const rawMode = readQueryParam(query.mode);
+  const rawTab = readQueryParam(query.tab);
+  const rawEmailHint = readQueryParam(query.email);
+  const mode = rawMode ?? '';
   const error = readQueryParam(query.error);
   const notice = readQueryParam(query.notice);
-  const emailHint = readQueryParam(query.email);
-  const initialTab = normalizeAdminTab(readQueryParam(query.tab));
+  const emailHint = rawEmailHint;
+  const initialTab = normalizeAdminTab(rawTab);
+  const preservedTab =
+    rawTab === 'orders' || rawTab === 'add-product' || rawTab === 'modify-products' ? rawTab : undefined;
+  const shouldCleanFlash = Boolean(notice || error);
   const session = await getCurrentSession();
   const hasAdmin = await adminExists();
   const admin = await getAdminRecord();
@@ -81,7 +88,8 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
   if (session?.role === 'admin') {
     return (
       <>
-        <AdminFlashUrlCleaner />
+        <AdminFlashUrlCleaner email={emailHint ?? undefined} mode={rawMode ?? undefined} shouldClean={shouldCleanFlash} tab={preservedTab} />
+        <AdminSessionTimeout portalPath={portalPath} />
         <AdminDashboard
           key={`${initialTab}:${notice ?? ''}:${error ?? ''}`}
           error={error ?? undefined}
@@ -98,7 +106,7 @@ export default async function AdminPage({ params, searchParams }: AdminPageProps
 
   return (
     <>
-      <AdminFlashUrlCleaner />
+      <AdminFlashUrlCleaner email={emailHint ?? undefined} mode={rawMode ?? undefined} shouldClean={shouldCleanFlash} tab={preservedTab} />
       <div className="pb-20 pt-10 lg:pb-28">
         <div className="mx-auto w-[min(900px,calc(100%-1.5rem))] space-y-8">
           <section className="rounded-[40px] border border-white/70 bg-[linear-gradient(135deg,rgba(255,255,255,0.78),rgba(248,236,219,0.94))] p-8 shadow-[0_24px_70px_rgba(87,60,14,0.12)] lg:p-10">

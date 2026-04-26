@@ -1,27 +1,41 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 
-export function AdminFlashUrlCleaner() {
+type AdminFlashUrlCleanerProps = {
+  email?: string;
+  mode?: string;
+  shouldClean: boolean;
+  tab?: string;
+};
+
+export function AdminFlashUrlCleaner({ email, mode, shouldClean, tab }: AdminFlashUrlCleanerProps) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
-  const search = searchParams.toString();
-  const hasFlashParam = searchParams.has('notice') || searchParams.has('error');
 
   useEffect(() => {
-    if (!hasFlashParam) {
+    if (!shouldClean) {
       return;
     }
 
-    const nextParams = new URLSearchParams(search);
-    nextParams.delete('notice');
-    nextParams.delete('error');
+    const nextParams = new URLSearchParams();
+
+    if (tab) {
+      nextParams.set('tab', tab);
+    }
+
+    if (mode) {
+      nextParams.set('mode', mode);
+    }
+
+    if (email) {
+      nextParams.set('email', email);
+    }
 
     const nextSearch = nextParams.toString();
     const nextUrl = nextSearch ? `${pathname}?${nextSearch}` : pathname;
     window.history.replaceState(window.history.state, '', nextUrl);
-  }, [hasFlashParam, pathname, search]);
+  }, [email, mode, pathname, shouldClean, tab]);
 
   return null;
 }

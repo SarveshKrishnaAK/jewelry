@@ -14,6 +14,7 @@ export function SiteHeader({ session }: { session: AuthSession | null }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const accountLabel = session?.role === 'user' ? 'Account' : 'Sign in';
+  const showAccountLink = session?.role !== 'admin';
 
   return (
     <header className="sticky top-0 z-30 border-b border-white/40 bg-[rgba(249,243,236,0.78)] backdrop-blur-xl">
@@ -46,9 +47,11 @@ export function SiteHeader({ session }: { session: AuthSession | null }) {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link href="/account" className="hidden rounded-full border border-white/70 bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow-[0_10px_30px_rgba(87,60,14,0.08)] transition hover:-translate-y-0.5 hover:border-stone-900 md:inline-flex">
-            {accountLabel}
-          </Link>
+          {showAccountLink ? (
+            <Link href="/account" className="hidden rounded-full border border-white/70 bg-white px-4 py-2 text-sm font-semibold text-stone-900 shadow-[0_10px_30px_rgba(87,60,14,0.08)] transition hover:-translate-y-0.5 hover:border-stone-900 md:inline-flex">
+              {accountLabel}
+            </Link>
+          ) : null}
           <button
             type="button"
             onClick={openCart}
@@ -83,9 +86,11 @@ export function SiteHeader({ session }: { session: AuthSession | null }) {
                 {link.label}
               </Link>
             ))}
-            <Link href="/account" onClick={() => setMobileMenuOpen(false)} className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-stone-700">
-              {accountLabel}
-            </Link>
+            {showAccountLink ? (
+              <Link href="/account" onClick={() => setMobileMenuOpen(false)} className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-stone-700">
+                {accountLabel}
+              </Link>
+            ) : null}
           </nav>
         </div>
       ) : null}
