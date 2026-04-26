@@ -1,6 +1,7 @@
 'use client';
 
 import { useDeferredValue, useState } from 'react';
+import { usePathname, useSearchParams } from 'next/navigation';
 
 import {
   createProductAction,
@@ -175,6 +176,8 @@ export function AdminDashboard({
   portalPath,
   products,
 }: AdminDashboardProps) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<AdminSection>(initialTab);
   const [orderStatusFilter, setOrderStatusFilter] = useState<'all' | OrderStatus>('all');
   const [orderQuery, setOrderQuery] = useState('');
@@ -235,6 +238,19 @@ export function AdminDashboard({
   const selectedOrder = filteredOrders.find((order) => order.id === selectedOrderIdOrFallback) ?? null;
   const selectedProduct = filteredProducts.find((product) => product.id === selectedProductIdOrFallback) ?? null;
 
+  function handleTabChange(section: AdminSection) {
+    setActiveTab(section);
+
+    const nextParams = new URLSearchParams(searchParams.toString());
+    nextParams.delete('notice');
+    nextParams.delete('error');
+    nextParams.set('tab', section);
+
+    const nextSearch = nextParams.toString();
+    const nextUrl = nextSearch ? `${pathname}?${nextSearch}` : pathname;
+    window.history.replaceState(window.history.state, '', nextUrl);
+  }
+
   return (
     <div className="pb-20 pt-10 lg:pb-28">
       <div className="mx-auto w-[min(1320px,calc(100%-1.5rem))] space-y-8">
@@ -274,7 +290,7 @@ export function AdminDashboard({
               <button
                 key={section}
                 type="button"
-                onClick={() => setActiveTab(section)}
+                onClick={() => handleTabChange(section)}
                 className={`rounded-[32px] border px-6 py-5 text-left transition ${
                   isActive
                     ? 'border-stone-900 bg-stone-900 text-white shadow-[0_18px_45px_rgba(41,37,36,0.22)]'
