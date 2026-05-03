@@ -12,21 +12,38 @@ type CheckoutButtonProps = {
   items: CartEntry[];
 };
 
-type RazorpayCheckoutResponse = {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-};
-
 type RazorpayFailureEvent = {
   error?: {
+    code?: string;
     description?: string;
+    reason?: string;
+    source?: string;
+    step?: string;
   };
+};
+
+type RazorpayCheckoutReadonlyOptions = {
+  contact?: boolean;
+  email?: boolean;
+  name?: boolean;
+};
+
+type RazorpayCheckoutRetryOptions = {
+  enabled?: boolean;
+};
+
+type RazorpayCheckoutModalOptions = {
+  backdropclose?: boolean;
+  confirm_close?: boolean;
+  escape?: boolean;
+  handleback?: boolean;
+  ondismiss?: () => void;
 };
 
 type RazorpayCheckoutOptions = {
   key: string;
   amount: number;
+  callback_url: string;
   currency: string;
   name: string;
   description: string;
@@ -36,14 +53,14 @@ type RazorpayCheckoutOptions = {
     email?: string;
     contact?: string;
   };
-  notes?: Record<string, string>;
+  readonly?: RazorpayCheckoutReadonlyOptions;
+  retry?: RazorpayCheckoutRetryOptions;
+  timeout?: number;
   theme?: {
+    backdrop_color?: string;
     color?: string;
   };
-  modal?: {
-    ondismiss?: () => void;
-  };
-  handler: (response: RazorpayCheckoutResponse) => void | Promise<void>;
+  modal?: RazorpayCheckoutModalOptions;
 };
 
 type RazorpayCheckoutInstance = {
@@ -55,6 +72,7 @@ type RazorpayCheckoutConstructor = new (options: RazorpayCheckoutOptions) => Raz
 
 type CheckoutSessionResponse = {
   amount?: number;
+  callbackUrl?: string;
   currency?: string;
   description?: string;
   error?: string;
@@ -101,6 +119,41 @@ async function loadRazorpayCheckoutScript() {
   return window.Razorpay;
 }
 
+function normalizePhoneForRazorpay(value: string) {
+  const digits = value.replace(/\D/g, '');
+
+  if (!digits) {
+    return undefined;
+  }
+
+  if (digits.length === 10) {
+    return `+91${digits}`;
+  }
+
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `+${digits}`;
+  }
+
+  const trimmedValue = value.trim();
+  return trimmedValue.startsWith('+') ? trimmedValue : trimmedValue || undefined;
+}
+
+function formatPaymentFailureMessage(failureResponse: RazorpayFailureEvent) {
+  const description = failureResponse.error?.description?.trim();
+
+  if (description) {
+    return description;
+  }
+
+  const reason = failureResponse.error?.reason?.trim();
+
+  if (reason) {
+    return reason;
+  }
+
+  return 'Payment failed. Please try again.';
+}
+
 export function CheckoutButton({
   customerEmail,
   customerName,
@@ -131,14 +184,25 @@ export function CheckoutButton({
 
       const data = (await response.json()) as CheckoutSessionResponse;
 
-      if (!response.ok || !data.orderId || !data.keyId || !data.amount || !data.currency || !data.storeName || !data.description) {
+      if (
+        !response.ok ||
+        !data.orderId ||
+        !data.keyId ||
+        !data.amount ||
+        !data.currency ||
+        !data.storeName ||
+        !data.description ||
+        !data.callbackUrl
+      ) {
         throw new Error(data.error ?? 'Unable to start secure checkout right now.');
       }
 
       const Razorpay = await loadRazorpayCheckoutScript();
+      const normalizedPhone = normalizePhoneForRazorpay(customerPhone);
       const checkout = new Razorpay({
         key: data.keyId,
         amount: data.amount,
+        callback_url: data.callbackUrl,
         currency: data.currency,
         name: data.storeName,
         description: data.description,
@@ -146,47 +210,34 @@ export function CheckoutButton({
         prefill: {
           name: customerName,
           email: customerEmail,
-          contact: customerPhone,
+          contact: normalizedPhone,
         },
+        readonly: {
+          email: true,
+          contact: Boolean(normalizedPhone),
+        },
+        retry: {
+          enabled: true,
+        },
+        timeout: 15 * 60,
         theme: {
           color: '#1c1917',
+          backdrop_color: '#f5ead7',
         },
         modal: {
+          backdropclose: false,
+          confirm_close: true,
+          escape: true,
+          handleback: true,
           ondismiss: () => {
+            setError('Checkout was closed before the payment was completed.');
             setIsSubmitting(false);
           },
-        },
-        handler: async (paymentResponse) => {
-          try {
-            const verifyResponse = await fetch('/api/checkout/verify', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(paymentResponse),
-            });
-
-            const verifyData = (await verifyResponse.json()) as {
-              error?: string;
-              redirectUrl?: string;
-            };
-
-            if (!verifyResponse.ok || !verifyData.redirectUrl) {
-              throw new Error(verifyData.error ?? 'Unable to verify payment right now.');
-            }
-
-            window.location.assign(verifyData.redirectUrl);
-          } catch (verificationError) {
-            setError(
-              verificationError instanceof Error ? verificationError.message : 'Unable to verify payment right now.',
-            );
-            setIsSubmitting(false);
-          }
         },
       });
 
       checkout.on('payment.failed', (failureResponse) => {
-        setError(failureResponse.error?.description ?? 'Payment failed. Please try again.');
+        setError(formatPaymentFailureMessage(failureResponse));
         setIsSubmitting(false);
       });
 
@@ -205,7 +256,7 @@ export function CheckoutButton({
         disabled={isSubmitting || items.length === 0 || !hasSavedAddress}
         className="inline-flex w-full items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-stone-700 disabled:cursor-not-allowed disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
       >
-        {isSubmitting ? 'Opening Razorpay...' : 'Pay securely with Razorpay'}
+        {isSubmitting ? 'Opening secure checkout...' : 'Pay securely with Razorpay'}
       </button>
       {!hasSavedAddress ? <p className="text-sm text-amber-700">Save your delivery address before continuing to payment.</p> : null}
       {error ? <p className="text-sm text-rose-700">{error}</p> : null}

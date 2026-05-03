@@ -1,7 +1,5 @@
 import { getSessionFromCookieHeader } from '@/lib/auth';
-import { deriveOrderStatus, getOrderById, updateOrderRecord } from '@/lib/order-store';
-import { getRazorpayOrderRecord, updateRazorpayOrderRecord } from '@/lib/payment-store';
-import { fetchRazorpayPayment, verifyRazorpayPaymentSignature } from '@/lib/razorpay';
+import { finalizeRazorpayPayment } from '@/lib/razorpay-checkout';
 import {
   ApiRouteError,
   assertAllowedOrigin,
@@ -60,65 +58,15 @@ export async function POST(request: Request) {
       throw new ApiRouteError('Missing payment verification fields.', 400);
     }
 
-    const orderRecord = await getRazorpayOrderRecord(orderId);
-
-    if (!orderRecord) {
-      throw new ApiRouteError('Payment session expired. Please start checkout again.', 404);
-    }
-
-    if (orderRecord.userId !== session.subject) {
-      throw new ApiRouteError('This payment session does not belong to your account.', 403);
-    }
-
-    if (orderRecord.expiresAt <= Date.now()) {
-      throw new ApiRouteError('Payment session expired. Please start checkout again.', 410);
-    }
-
-    if (!verifyRazorpayPaymentSignature({ orderId: orderRecord.orderId, paymentId, signature })) {
-      throw new ApiRouteError('Invalid payment signature.', 400);
-    }
-
-    const payment = await fetchRazorpayPayment(paymentId);
-
-    if (payment.order_id !== orderRecord.orderId) {
-      throw new ApiRouteError('Payment order mismatch detected.', 400);
-    }
-
-    if (payment.amount !== orderRecord.amount || payment.currency !== orderRecord.currency) {
-      throw new ApiRouteError('Payment amount mismatch detected.', 400);
-    }
-
-    if (payment.status !== 'authorized' && payment.status !== 'captured') {
-      throw new ApiRouteError('Payment was not successfully authorized.', 400);
-    }
-
-    await updateRazorpayOrderRecord({
-      ...orderRecord,
-      status: payment.status,
-      paymentId,
-      updatedAt: new Date().toISOString(),
+    const result = await finalizeRazorpayPayment({
+      razorpayOrderId: orderId,
+      razorpayPaymentId: paymentId,
+      razorpaySignature: signature,
+      userId: session.subject,
     });
 
-    const storedOrder = await getOrderById(orderRecord.storeOrderId);
-
-    if (storedOrder) {
-      const updatedAt = new Date().toISOString();
-      await updateOrderRecord({
-        ...storedOrder,
-        paymentStatus: payment.status,
-        status: deriveOrderStatus({
-          paymentStatus: payment.status,
-          fulfillmentStatus: storedOrder.fulfillmentStatus,
-          failureReason: storedOrder.failureReason,
-        }),
-        paymentId,
-        updatedAt,
-        paidAt: payment.status === 'captured' || payment.status === 'authorized' ? updatedAt : storedOrder.paidAt,
-      });
-    }
-
     const response = secureJson({
-      redirectUrl: `/checkout/success?order_id=${encodeURIComponent(orderRecord.storeOrderId)}`,
+      redirectUrl: result.redirectPath,
     });
 
     return rateLimit ? withRateLimitHeaders(response, rateLimit) : response;

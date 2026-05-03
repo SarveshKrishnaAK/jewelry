@@ -99,7 +99,7 @@ export async function POST(request: Request) {
           failureReason:
             payload.event === 'payment.failed'
               ? payload.payload?.payment?.entity?.error_description ?? 'Payment failed at Razorpay.'
-              : orderRecord.failureReason,
+              : undefined,
           updatedAt: new Date().toISOString(),
         });
       }
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
         const failureReason =
           payload.event === 'payment.failed'
             ? payload.payload?.payment?.entity?.error_description ?? 'Payment failed at Razorpay.'
-            : storedOrder.failureReason;
+            : undefined;
         const updatedAt = new Date().toISOString();
 
         await updateOrderRecord({
@@ -130,10 +130,7 @@ export async function POST(request: Request) {
           paymentId: paymentId ?? storedOrder.paymentId,
           failureReason,
           updatedAt,
-          paidAt:
-            nextPaymentStatus === 'captured' || nextPaymentStatus === 'authorized'
-              ? storedOrder.paidAt ?? updatedAt
-              : storedOrder.paidAt,
+          paidAt: nextPaymentStatus === 'captured' ? storedOrder.paidAt ?? updatedAt : storedOrder.paidAt,
         });
       }
     }

@@ -192,7 +192,7 @@ export function deriveOrderStatus({
     return 'processing';
   }
 
-  if (paymentStatus === 'captured' || paymentStatus === 'authorized') {
+  if (paymentStatus === 'captured') {
     return 'paid';
   }
 
