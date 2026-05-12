@@ -17,7 +17,7 @@ import {
   secureJson,
   withRateLimitHeaders,
 } from '@/lib/security';
-import { getBaseUrl, siteConfig } from '@/lib/site';
+import { siteConfig } from '@/lib/site';
 import type { CartEntry, PaymentCartItem, UserAddress } from '@/lib/types';
 import { createId } from '@/lib/utils';
 
@@ -77,6 +77,7 @@ function isIndianAddressCountry(value: string | undefined) {
 
 export async function POST(request: Request) {
   let rateLimit: RateLimitSnapshot | undefined;
+  const origin = new URL(request.url).origin;
 
   try {
     assertAllowedOrigin(request);
@@ -205,7 +206,7 @@ export async function POST(request: Request) {
       orderId: razorpayOrder.id,
       amount: razorpayOrder.amount,
       currency: 'INR',
-      callbackUrl: `${getBaseUrl()}/api/checkout/callback`,
+      callbackUrl: `${origin}/api/checkout/callback`,
       storeName: siteConfig.name,
       description: `${detailedItems.length} item${detailedItems.length === 1 ? '' : 's'} from ${siteConfig.name}`,
     });

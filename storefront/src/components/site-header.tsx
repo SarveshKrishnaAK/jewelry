@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { useCart } from '@/components/cart-provider';
 import type { AuthSession } from '@/lib/types';
@@ -12,6 +12,23 @@ export function SiteHeader({ session }: { session: AuthSession | null }) {
   const pathname = usePathname();
   const { itemCount, openCart } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen]);
 
   const accountLabel = session?.role === 'user' ? 'Account' : 'Sign in';
   const showAccountLink = session?.role !== 'admin';

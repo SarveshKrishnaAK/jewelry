@@ -3,10 +3,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 
 import { formatCurrency } from '@/lib/currency';
-import type { CartEntry, Product } from '@/lib/types';
+import type { CartEntry, CartProductSnapshot } from '@/lib/types';
 
 type CartLineItem = {
-  product: Product;
+  product: CartProductSnapshot;
   quantity: number;
   lineTotal: number;
 };
@@ -18,7 +18,7 @@ type CartContextValue = {
   subtotal: number;
   subtotalLabel: string;
   isCartOpen: boolean;
-  addItem: (productId: string, quantity?: number) => void;
+  addItem: (product: CartProductSnapshot, quantity?: number) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   removeItem: (productId: string) => void;
   clearCart: () => void;
@@ -33,6 +33,38 @@ const CartContext = createContext<CartContextValue | null>(null);
 let cartSnapshot: CartEntry[] = emptyCart;
 const cartListeners = new Set<() => void>();
 
+function normalizeStoredCart(payload: unknown): CartEntry[] {
+  if (!Array.isArray(payload)) {
+    return emptyCart;
+  }
+
+  return payload.flatMap((entry) => {
+    if (!entry || typeof entry !== 'object') {
+      return [];
+    }
+
+    const cartEntry = entry as Partial<CartEntry>;
+    const quantity = Number(cartEntry.quantity ?? 0);
+
+    if (typeof cartEntry.productId !== 'string' || !Number.isFinite(quantity) || quantity <= 0) {
+      return [];
+    }
+
+    const productSnapshot =
+      cartEntry.productSnapshot && typeof cartEntry.productSnapshot === 'object'
+        ? (cartEntry.productSnapshot as CartProductSnapshot)
+        : undefined;
+
+    return [
+      {
+        productId: cartEntry.productId,
+        quantity: Math.min(10, Math.floor(quantity)),
+        productSnapshot,
+      } satisfies CartEntry,
+    ];
+  });
+}
+
 function readStoredCart() {
   if (typeof window === 'undefined') {
     return emptyCart;
@@ -40,7 +72,7 @@ function readStoredCart() {
 
   try {
     const storedCart = window.localStorage.getItem(STORAGE_KEY);
-    return storedCart ? (JSON.parse(storedCart) as CartEntry[]) : emptyCart;
+    return storedCart ? normalizeStoredCart(JSON.parse(storedCart)) : emptyCart;
   } catch {
     return emptyCart;
   }
@@ -103,10 +135,10 @@ function updateStoredCart(updater: (items: CartEntry[]) => CartEntry[]) {
   emitCartChange();
 }
 
-export function CartProvider({ children, initialProducts }: { children: ReactNode; initialProducts: Product[] }) {
-  const productMap = useMemo(() => Object.fromEntries(initialProducts.map((product) => [product.id, product])), [initialProducts]);
+export function CartProvider({ children }: { children: ReactNode }) {
   const items = useSyncExternalStore(subscribeToCart, getCartSnapshot, getServerCartSnapshot);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [productSnapshots, setProductSnapshots] = useState<Record<string, CartProductSnapshot>>({});
 
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? 'hidden' : '';
@@ -116,18 +148,108 @@ export function CartProvider({ children, initialProducts }: { children: ReactNod
     };
   }, [isCartOpen]);
 
-  const addItem = useCallback((productId: string, quantity = 1) => {
+  useEffect(() => {
+    const nextSnapshots = items.reduce<Record<string, CartProductSnapshot>>((accumulator, item) => {
+      if (item.productSnapshot) {
+        accumulator[item.productId] = item.productSnapshot;
+      }
+
+      return accumulator;
+    }, {});
+
+    if (Object.keys(nextSnapshots).length === 0) {
+      return;
+    }
+
+    setProductSnapshots((currentSnapshots) => ({ ...currentSnapshots, ...nextSnapshots }));
+  }, [items]);
+
+  const missingProductIds = useMemo(
+    () =>
+      Array.from(
+        new Set(
+          items
+            .filter((item) => !item.productSnapshot && !productSnapshots[item.productId])
+            .map((item) => item.productId),
+        ),
+      ),
+    [items, productSnapshots],
+  );
+
+  useEffect(() => {
+    if (missingProductIds.length === 0) {
+      return;
+    }
+
+    let cancelled = false;
+    const params = new URLSearchParams();
+
+    for (const id of missingProductIds) {
+      params.append('ids', id);
+    }
+
+    void (async () => {
+      try {
+        const response = await fetch(`/api/cart/products?${params.toString()}`, {
+          method: 'GET',
+          cache: 'no-store',
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as { products?: CartProductSnapshot[] };
+        const fetchedProducts = data.products ?? [];
+
+        if (cancelled || fetchedProducts.length === 0) {
+          return;
+        }
+
+        const snapshotMap = Object.fromEntries(fetchedProducts.map((product) => [product.id, product]));
+        setProductSnapshots((currentSnapshots) => ({ ...currentSnapshots, ...snapshotMap }));
+
+        updateStoredCart((currentItems) =>
+          currentItems.map((item) => ({
+            ...item,
+            productSnapshot: item.productSnapshot ?? snapshotMap[item.productId],
+          })),
+        );
+      } catch {
+        // Ignore cart product hydration errors and keep the cart usable with future snapshots.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [missingProductIds]);
+
+  const addItem = useCallback((product: CartProductSnapshot, quantity = 1) => {
     updateStoredCart((currentItems) => {
       const safeQuantity = Math.max(1, Math.floor(quantity));
-      const existingItem = currentItems.find((item) => item.productId === productId);
+      const existingItem = currentItems.find((item) => item.productId === product.id);
 
       if (existingItem) {
         return currentItems.map((item) =>
-          item.productId === productId ? { ...item, quantity: item.quantity + safeQuantity } : item,
+          item.productId === product.id
+            ? {
+                ...item,
+                productSnapshot: item.productSnapshot ?? product,
+                quantity: Math.min(10, item.quantity + safeQuantity),
+              }
+            : item,
         );
       }
 
-      return [...currentItems, { productId, quantity: safeQuantity }];
+      return [
+        ...currentItems,
+        {
+          productId: product.id,
+          quantity: Math.min(10, safeQuantity),
+          productSnapshot: product,
+        },
+      ];
     });
   }, []);
 
@@ -154,7 +276,7 @@ export function CartProvider({ children, initialProducts }: { children: ReactNod
   const detailedItems = useMemo(() => {
     return items
       .map((item) => {
-        const product = productMap[item.productId];
+        const product = item.productSnapshot ?? productSnapshots[item.productId];
         if (!product) {
           return null;
         }
@@ -166,17 +288,14 @@ export function CartProvider({ children, initialProducts }: { children: ReactNod
         } satisfies CartLineItem;
       })
       .filter((item): item is CartLineItem => item !== null);
-  }, [items, productMap]);
+  }, [items, productSnapshots]);
 
   const subtotal = useMemo(
     () => detailedItems.reduce((runningTotal, item) => runningTotal + item.lineTotal, 0),
     [detailedItems],
   );
 
-  const itemCount = useMemo(
-    () => detailedItems.reduce((runningTotal, item) => runningTotal + item.quantity, 0),
-    [detailedItems],
-  );
+  const itemCount = useMemo(() => items.reduce((runningTotal, item) => runningTotal + item.quantity, 0), [items]);
 
   const value = useMemo<CartContextValue>(
     () => ({

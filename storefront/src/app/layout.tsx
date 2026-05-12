@@ -5,7 +5,6 @@ import { CartProvider } from '@/components/cart-provider';
 import { SiteFrame } from '@/components/site-frame';
 import { getCurrentSession } from '@/lib/auth';
 import { getBaseUrl, siteConfig } from '@/lib/site';
-import { getAllProducts } from '@/lib/product-store';
 
 import './globals.css';
 
@@ -43,7 +42,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [session, products] = await Promise.all([getCurrentSession(), getAllProducts()]);
+  const session = await getCurrentSession();
 
   return (
     <html lang="en" className={`${manrope.variable} ${cormorant.variable}`}>
@@ -51,7 +50,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>
-        <CartProvider initialProducts={products}>
+        <CartProvider>
           <div className="relative flex min-h-screen flex-col overflow-x-hidden">
             <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.84),_transparent_36%),radial-gradient(circle_at_85%_20%,_rgba(217,188,140,0.22),_transparent_20%),linear-gradient(180deg,_#f8f2ea_0%,_#efe2d2_52%,_#f9f4ee_100%)]" />
             <SiteFrame session={session}>{children}</SiteFrame>

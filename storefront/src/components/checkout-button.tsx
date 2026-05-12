@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import type { CartEntry } from '@/lib/types';
 
@@ -87,36 +87,51 @@ declare global {
   }
 }
 
+let razorpayCheckoutPromise: Promise<RazorpayCheckoutConstructor> | null = null;
+
 async function loadRazorpayCheckoutScript() {
   if (window.Razorpay) {
     return window.Razorpay;
   }
 
-  await new Promise<void>((resolve, reject) => {
-    const existingScript = document.querySelector<HTMLScriptElement>('script[data-razorpay-checkout="true"]');
+  if (!razorpayCheckoutPromise) {
+    razorpayCheckoutPromise = new Promise<void>((resolve, reject) => {
+      const existingScript = document.querySelector<HTMLScriptElement>('script[data-razorpay-checkout="true"]');
 
-    if (existingScript) {
-      existingScript.addEventListener('load', () => resolve(), { once: true });
-      existingScript.addEventListener('error', () => reject(new Error('Unable to load Razorpay Checkout.')), {
-        once: true,
+      if (existingScript) {
+        existingScript.addEventListener('load', () => resolve(), { once: true });
+        existingScript.addEventListener('error', () => reject(new Error('Unable to load Razorpay Checkout.')), {
+          once: true,
+        });
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.dataset.razorpayCheckout = 'true';
+      script.onload = () => resolve();
+      script.onerror = () => reject(new Error('Unable to load Razorpay Checkout.'));
+      document.body.appendChild(script);
+    })
+      .then(() => {
+        if (!window.Razorpay) {
+          throw new Error('Razorpay Checkout is unavailable.');
+        }
+
+        return window.Razorpay;
+      })
+      .catch((error) => {
+        razorpayCheckoutPromise = null;
+        throw error;
       });
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    script.dataset.razorpayCheckout = 'true';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Unable to load Razorpay Checkout.'));
-    document.body.appendChild(script);
-  });
-
-  if (!window.Razorpay) {
-    throw new Error('Razorpay Checkout is unavailable.');
   }
 
-  return window.Razorpay;
+  return razorpayCheckoutPromise;
+}
+
+function preloadRazorpayCheckoutScript() {
+  void loadRazorpayCheckoutScript().catch(() => undefined);
 }
 
 function normalizePhoneForRazorpay(value: string) {
@@ -163,6 +178,20 @@ export function CheckoutButton({
 }: CheckoutButtonProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!hasSavedAddress || items.length === 0) {
+      return;
+    }
+
+    const preloadTimer = window.setTimeout(() => {
+      preloadRazorpayCheckoutScript();
+    }, 350);
+
+    return () => {
+      window.clearTimeout(preloadTimer);
+    };
+  }, [hasSavedAddress, items.length]);
 
   async function handleCheckout() {
     if (!hasSavedAddress) {
@@ -253,6 +282,8 @@ export function CheckoutButton({
       <button
         type="button"
         onClick={handleCheckout}
+        onPointerEnter={preloadRazorpayCheckoutScript}
+        onFocus={preloadRazorpayCheckoutScript}
         disabled={isSubmitting || items.length === 0 || !hasSavedAddress}
         className="inline-flex w-full items-center justify-center rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition duration-300 hover:bg-stone-700 disabled:cursor-not-allowed disabled:bg-stone-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-stone-900"
       >

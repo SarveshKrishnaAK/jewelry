@@ -52,7 +52,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <p className="text-xl font-semibold text-stone-900">{formatCurrency(product.price)}</p>
             {product.originalPrice ? <p className="text-sm text-stone-400 line-through">{formatCurrency(product.originalPrice)}</p> : null}
           </div>
-          <AddToCartButton productId={product.id} />
+          <AddToCartButton product={product} />
         </div>
       </div>
     </article>

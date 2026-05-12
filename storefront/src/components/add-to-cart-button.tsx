@@ -3,18 +3,19 @@
 import { useState } from 'react';
 
 import { useCart } from '@/components/cart-provider';
+import type { CartProductSnapshot } from '@/lib/types';
 
 type AddToCartButtonProps = {
-  productId: string;
+  product: CartProductSnapshot;
   className?: string;
 };
 
-export function AddToCartButton({ productId, className = '' }: AddToCartButtonProps) {
+export function AddToCartButton({ product, className = '' }: AddToCartButtonProps) {
   const { addItem, openCart } = useCart();
   const [message, setMessage] = useState('');
 
   function handleAddToCart() {
-    addItem(productId, 1);
+    addItem(product, 1);
     openCart();
     setMessage('Added to cart');
   }

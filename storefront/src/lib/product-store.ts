@@ -1,9 +1,12 @@
-﻿import { seedProducts } from '@/data/products';
+import { unstable_cache as unstableCache } from 'next/cache';
+
+import { seedProducts } from '@/data/products';
 import { getRedis, isRedisConfigured } from '@/lib/redis';
-import type { Product } from '@/lib/types';
+import type { CartProductSnapshot, Product } from '@/lib/types';
 
 const PRODUCTS_SEEDED_KEY = 'aurum:products:seeded';
 const PRODUCT_IDS_KEY = 'aurum:products:ids';
+export const PRODUCT_DATA_TAG = 'products';
 
 function productKey(id: string) {
   return `aurum:product:${id}`;
@@ -44,7 +47,7 @@ function sortProducts(products: Product[]) {
   });
 }
 
-export async function getAllProducts() {
+async function loadAllProductsUncached() {
   if (!isRedisConfigured()) {
     return sortProducts([...seedProducts]);
   }
@@ -56,25 +59,22 @@ export async function getAllProducts() {
   return sortProducts(products.filter((product): product is Product => Boolean(product)));
 }
 
+const getCachedAllProducts = unstableCache(loadAllProductsUncached, ['products:all'], {
+  tags: [PRODUCT_DATA_TAG],
+});
+
+export async function getAllProducts() {
+  return getCachedAllProducts();
+}
+
 export async function getProductMap() {
   const products = await getAllProducts();
   return Object.fromEntries(products.map((product) => [product.id, product]));
 }
 
 export async function getProductBySlug(slug: string) {
-  if (!isRedisConfigured()) {
-    return seedProducts.find((product) => product.slug === slug);
-  }
-
-  await ensureSeedProducts();
-  const redis = getRedis();
-  const productId = await redis.get<string>(productSlugKey(slug));
-
-  if (!productId) {
-    return null;
-  }
-
-  return (await redis.get<Product>(productKey(productId))) ?? null;
+  const products = await getAllProducts();
+  return products.find((product) => product.slug === slug) ?? null;
 }
 
 export async function getFeaturedProducts() {
@@ -102,6 +102,31 @@ export async function getCustomerHighlights() {
       productName: product.name,
     })),
   );
+}
+
+export function toCartProductSnapshot(product: Product): CartProductSnapshot {
+  return {
+    id: product.id,
+    slug: product.slug,
+    name: product.name,
+    category: product.category,
+    price: product.price,
+    image: product.image,
+    imageAlt: product.imageAlt,
+    shortDescription: product.shortDescription,
+  };
+}
+
+export async function getCartProductSnapshotsByIds(ids: string[]) {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const productMap = await getProductMap();
+  return ids
+    .map((id) => productMap[id])
+    .filter((product): product is Product => Boolean(product))
+    .map(toCartProductSnapshot);
 }
 
 export async function upsertProduct(product: Product, previousSlug?: string) {

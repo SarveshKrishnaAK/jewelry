@@ -35,9 +35,15 @@ export type Product = {
   updatedAt?: string;
 };
 
+export type CartProductSnapshot = Pick<
+  Product,
+  'id' | 'slug' | 'name' | 'category' | 'price' | 'image' | 'imageAlt' | 'shortDescription'
+>;
+
 export type CartEntry = {
   productId: string;
   quantity: number;
+  productSnapshot?: CartProductSnapshot;
 };
 
 export type PaymentCartItem = {

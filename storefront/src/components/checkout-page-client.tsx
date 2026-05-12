@@ -19,7 +19,7 @@ export function CheckoutPageClient({
   hasSavedAddress: boolean;
   savedAddressSummary: string | null;
 }) {
-  const { detailedItems, items, subtotal } = useCart();
+  const { detailedItems, items, removeItem, subtotal } = useCart();
 
   if (detailedItems.length === 0) {
     return (
@@ -53,6 +53,13 @@ export function CheckoutPageClient({
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{product.category}</p>
                 <h3 className="mt-2 text-lg font-semibold text-stone-900">{product.name}</h3>
                 <p className="mt-2 text-sm leading-7 text-stone-600">{product.shortDescription}</p>
+                <button
+                  type="button"
+                  onClick={() => removeItem(product.id)}
+                  className="mt-4 inline-flex text-sm font-semibold text-rose-700 transition hover:text-rose-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-700"
+                >
+                  Remove from bag
+                </button>
               </div>
               <div className="shrink-0 text-left sm:text-right">
                 <p className="text-sm font-medium text-stone-500">Qty {quantity}</p>

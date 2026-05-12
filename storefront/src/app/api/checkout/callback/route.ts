@@ -2,14 +2,13 @@ import { NextResponse } from 'next/server';
 
 import { finalizeRazorpayPayment } from '@/lib/razorpay-checkout';
 import { ApiRouteError, assertContentLength, normalizeApiError } from '@/lib/security';
-import { getBaseUrl } from '@/lib/site';
 
 const CALLBACK_BODY_LIMIT_BYTES = 16 * 1024;
 
 export const runtime = 'nodejs';
 
-function buildRedirect(pathname: string, searchParams?: Record<string, string>) {
-  const url = new URL(pathname, getBaseUrl());
+function buildRedirect(origin: string, pathname: string, searchParams?: Record<string, string>) {
+  const url = new URL(pathname, origin);
 
   if (searchParams) {
     for (const [key, value] of Object.entries(searchParams)) {
@@ -21,6 +20,8 @@ function buildRedirect(pathname: string, searchParams?: Record<string, string>) 
 }
 
 export async function POST(request: Request) {
+  const origin = new URL(request.url).origin;
+
   try {
     assertContentLength(request, CALLBACK_BODY_LIMIT_BYTES);
 
@@ -39,9 +40,14 @@ export async function POST(request: Request) {
       razorpaySignature: signature,
     });
 
-    return NextResponse.redirect(buildRedirect(result.redirectPath), 303);
+    return NextResponse.redirect(buildRedirect(origin, result.redirectPath), 303);
   } catch (error) {
     const { message } = normalizeApiError(error, 'Unable to verify payment right now.');
-    return NextResponse.redirect(buildRedirect('/checkout', { error: message }), 303);
+    return NextResponse.redirect(buildRedirect(origin, '/checkout', { error: message }), 303);
   }
+}
+
+export async function GET(request: Request) {
+  const origin = new URL(request.url).origin;
+  return NextResponse.redirect(buildRedirect(origin, '/checkout/success'), 303);
 }

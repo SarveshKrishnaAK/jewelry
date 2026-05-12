@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { useCart } from '@/components/cart-provider';
+import type { CartProductSnapshot } from '@/lib/types';
 
 type ProductActionsProps = {
-  productId: string;
+  product: CartProductSnapshot;
 };
 
-export function ProductActions({ productId }: ProductActionsProps) {
+export function ProductActions({ product }: ProductActionsProps) {
   const router = useRouter();
   const { addItem, openCart } = useCart();
   const [quantity, setQuantity] = useState(1);
@@ -20,13 +21,13 @@ export function ProductActions({ productId }: ProductActionsProps) {
   }
 
   function handleAddToCart() {
-    addItem(productId, quantity);
+    addItem(product, quantity);
     openCart();
     setMessage(`${quantity} item${quantity > 1 ? 's' : ''} added to cart`);
   }
 
   function handleBuyNow() {
-    addItem(productId, quantity);
+    addItem(product, quantity);
     router.push('/checkout');
   }
 

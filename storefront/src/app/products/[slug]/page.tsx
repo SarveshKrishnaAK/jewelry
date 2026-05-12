@@ -81,7 +81,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
               ))}
             </div>
 
-            <ProductActions productId={product.id} />
+            <ProductActions product={product} />
           </div>
         </section>
 

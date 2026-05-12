@@ -1,6 +1,6 @@
-﻿'use client';
+'use client';
 
-import { useMemo, useState } from 'react';
+import { useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { ProductCard } from '@/components/product-card';
@@ -13,12 +13,18 @@ type CatalogClientProps = {
 
 export function CatalogClient({ products, categories }: CatalogClientProps) {
   const searchParams = useSearchParams();
+  const categoryFromUrl = searchParams.get('category') ?? 'All';
   const [query, setQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') ?? 'All');
+  const [selectedCategory, setSelectedCategory] = useState(categoryFromUrl);
   const [sortBy, setSortBy] = useState('featured');
+  const deferredQuery = useDeferredValue(query);
+
+  useEffect(() => {
+    setSelectedCategory(categories.includes(categoryFromUrl) ? categoryFromUrl : 'All');
+  }, [categories, categoryFromUrl]);
 
   const filteredProducts = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = deferredQuery.trim().toLowerCase();
 
     const matches = products.filter((product) => {
       const matchesCategory = selectedCategory === 'All' || product.category === selectedCategory;
@@ -43,7 +49,7 @@ export function CatalogClient({ products, categories }: CatalogClientProps) {
           return Number(Boolean(secondProduct.featured)) - Number(Boolean(firstProduct.featured));
       }
     });
-  }, [products, query, selectedCategory, sortBy]);
+  }, [deferredQuery, products, selectedCategory, sortBy]);
 
   return (
     <div className="space-y-8">
@@ -101,6 +107,19 @@ export function CatalogClient({ products, categories }: CatalogClientProps) {
                 {category}
               </button>
             ))}
+            {query || selectedCategory !== 'All' || sortBy !== 'featured' ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery('');
+                  setSelectedCategory('All');
+                  setSortBy('featured');
+                }}
+                className="rounded-full border border-stone-300 px-4 py-2 font-medium text-stone-700 transition hover:border-stone-900 hover:text-stone-900"
+              >
+                Clear filters
+              </button>
+            ) : null}
           </div>
         </div>
       </section>

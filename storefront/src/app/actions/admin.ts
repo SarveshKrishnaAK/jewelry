@@ -1,6 +1,6 @@
 ﻿'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import {
@@ -24,7 +24,7 @@ import {
 import { isEmailConfigured, sendOrderNotificationEmail, sendOtpEmail } from '@/lib/mailer';
 import { deriveOrderStatus, getOrderById, saveOrderNotification, updateOrderRecord } from '@/lib/order-store';
 import { getPasswordValidationError, hashPassword, verifyPassword } from '@/lib/password';
-import { deleteProduct, getAllProducts, getProductBySlug, upsertProduct } from '@/lib/product-store';
+import { deleteProduct, getAllProducts, getProductBySlug, PRODUCT_DATA_TAG, upsertProduct } from '@/lib/product-store';
 import { assertRateLimit } from '@/lib/security';
 import type { OrderFulfillmentStatus, OrderNotificationType, Product } from '@/lib/types';
 import { createId, createOtpCode, createSlug, normalizeEmail } from '@/lib/utils';
@@ -435,6 +435,7 @@ export async function createProductAction(formData: FormData) {
   }
 
   await upsertProduct(product);
+  revalidateTag(PRODUCT_DATA_TAG, 'max');
   revalidatePath('/');
   revalidatePath('/products');
   revalidatePath(`/products/${product.slug}`);
@@ -463,6 +464,7 @@ export async function updateProductAction(formData: FormData) {
   }
 
   await upsertProduct(nextProduct, existingProduct.slug);
+  revalidateTag(PRODUCT_DATA_TAG, 'max');
   revalidatePath('/');
   revalidatePath('/products');
   revalidatePath(`/products/${existingProduct.slug}`);
@@ -490,6 +492,7 @@ export async function deleteProductAction(formData: FormData) {
   }
 
   await deleteProduct(existingProduct);
+  revalidateTag(PRODUCT_DATA_TAG, 'max');
   revalidatePath('/');
   revalidatePath('/products');
   revalidatePath(`/products/${existingProduct.slug}`);
