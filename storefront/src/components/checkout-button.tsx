@@ -169,6 +169,12 @@ function formatPaymentFailureMessage(failureResponse: RazorpayFailureEvent) {
   return 'Payment failed. Please try again.';
 }
 
+function redirectToFailurePage(message: string) {
+  const url = new URL('/checkout/cancel', window.location.origin);
+  url.searchParams.set('reason', message);
+  window.location.assign(url.toString());
+}
+
 export function CheckoutButton({
   customerEmail,
   customerName,
@@ -266,7 +272,7 @@ export function CheckoutButton({
       });
 
       checkout.on('payment.failed', (failureResponse) => {
-        setError(formatPaymentFailureMessage(failureResponse));
+        redirectToFailurePage(formatPaymentFailureMessage(failureResponse));
         setIsSubmitting(false);
       });
 

@@ -1,6 +1,8 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 
 import { CheckoutSuccess } from '@/components/checkout-success';
+import { formatCurrency } from '@/lib/currency';
+import { getOrderById } from '@/lib/order-store';
 
 type CheckoutSuccessPageProps = {
   searchParams: Promise<{ order_id?: string; payment_status?: string }>;
@@ -8,6 +10,7 @@ type CheckoutSuccessPageProps = {
 
 export default async function CheckoutSuccessPage({ searchParams }: CheckoutSuccessPageProps) {
   const { order_id: orderId, payment_status: paymentStatusParam } = await searchParams;
+  const order = orderId ? await getOrderById(orderId) : null;
   const paymentStatus = paymentStatusParam === 'authorized' || paymentStatusParam === 'captured' ? paymentStatusParam : null;
   const eyebrow =
     paymentStatus === 'captured'
@@ -18,10 +21,10 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
   const title = paymentStatus === 'authorized' ? 'Your order is being finalized.' : 'Thank you for your order.';
   const description =
     paymentStatus === 'captured'
-      ? 'Your payment has been confirmed and your order has been recorded securely. Our team can now review, prepare, and update you on the next steps for delivery.'
+      ? "Your payment has been confirmed and your order is safely recorded. We'll prepare the pieces for dispatch shortly and keep you updated by email at every important step."
       : paymentStatus === 'authorized'
-        ? 'Razorpay has authorised your payment and your order is safely recorded. We will continue processing as soon as the captured confirmation reaches the store.'
-        : 'Your order has been recorded securely. Our team will keep tracking the payment status and update you on the next steps for delivery.';
+        ? "Razorpay has authorised your payment and your order is safely recorded. We'll continue processing as soon as the captured confirmation reaches the store and will keep you updated by email."
+        : "Your order has been recorded securely. We'll prepare it shortly and keep you updated by email on the next steps for delivery.";
 
   return (
     <div className="pb-20 pt-16 lg:pb-28">
@@ -32,6 +35,23 @@ export default async function CheckoutSuccessPage({ searchParams }: CheckoutSucc
           <h1 className="mt-4 [font-family:var(--font-cormorant)] text-5xl font-semibold text-stone-900">{title}</h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-8 text-stone-600">{description}</p>
           {orderId ? <p className="mt-5 text-sm text-stone-500">Order reference: {orderId}</p> : null}
+          {order?.items.length ? (
+            <div className="mx-auto mt-8 max-w-2xl rounded-[28px] border border-stone-200 bg-stone-50/70 p-6 text-left">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-stone-500">Ordered items</p>
+              <div className="mt-4 space-y-4">
+                {order.items.map((item) => (
+                  <div key={`${item.productId}:${item.slug}`} className="flex items-start justify-between gap-4 rounded-[20px] border border-stone-200 bg-white/90 p-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-stone-500">{item.category}</p>
+                      <p className="mt-1 text-base font-semibold text-stone-900">{item.name}</p>
+                      <p className="mt-1 text-sm text-stone-600">Quantity: {item.quantity}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-stone-900">{formatCurrency((item.unitAmount * item.quantity) / 100)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link href="/products" className="inline-flex items-center justify-center rounded-full bg-stone-900 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-700">
               Continue shopping

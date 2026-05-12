@@ -19,6 +19,10 @@ function buildRedirect(origin: string, pathname: string, searchParams?: Record<s
   return url;
 }
 
+function toFailureRedirect(origin: string, reason: string) {
+  return buildRedirect(origin, '/checkout/cancel', { reason });
+}
+
 export async function POST(request: Request) {
   const origin = new URL(request.url).origin;
 
@@ -31,7 +35,10 @@ export async function POST(request: Request) {
     const signature = String(formData.get('razorpay_signature') ?? '').trim();
 
     if (!orderId || !paymentId || !signature) {
-      throw new ApiRouteError('Missing payment verification fields.', 400);
+      return NextResponse.redirect(
+        toFailureRedirect(origin, 'We could not confirm the payment details from Razorpay. Please try the payment again.'),
+        303,
+      );
     }
 
     const result = await finalizeRazorpayPayment({
@@ -43,7 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.redirect(buildRedirect(origin, result.redirectPath), 303);
   } catch (error) {
     const { message } = normalizeApiError(error, 'Unable to verify payment right now.');
-    return NextResponse.redirect(buildRedirect(origin, '/checkout', { error: message }), 303);
+    return NextResponse.redirect(toFailureRedirect(origin, message), 303);
   }
 }
 
